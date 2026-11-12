@@ -1,0 +1,1432 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>PTCB Practice Bank</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one centered column; tabs switch Practice and Games; each question sits on a prescription-label style card */
+:root{
+  --bg:#F3F6F7; --surface:#FFFFFF; --fg:#13222B; --muted:#58707C; --line:#D5DFE3;
+  --accent:#0E7472; --accent-soft:#DDF0EE; --good:#1D7F46; --good-soft:#E1F3E8; --bad:#B93A26; --bad-soft:#FBE6E1; --gold:#9A6A00; --gold-soft:#FBF0D6;
+  --display:"Space Grotesk",system-ui,sans-serif; --body:"Atkinson Hyperlegible",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E1619; --surface:#16232A; --fg:#E4EDF0; --muted:#93A9B3; --line:#2A3B43;
+  --accent:#4FC2BC; --accent-soft:#163A3B; --good:#5BCB8A; --good-soft:#163526; --bad:#F08A76; --bad-soft:#3D1F1A; --gold:#E9B949; --gold-soft:#3A2E12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1619; --surface:#16232A; --fg:#E4EDF0; --muted:#93A9B3; --line:#2A3B43;
+  --accent:#4FC2BC; --accent-soft:#163A3B; --good:#5BCB8A; --good-soft:#163526; --bad:#F08A76; --bad-soft:#3D1F1A; --gold:#E9B949; --gold-soft:#3A2E12; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:780px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,6vw,40px);letter-spacing:-.01em}
+h2{font-size:22px} h3{font-size:18px}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.lede{color:var(--muted);max-width:62ch;margin-top:6px}
+.tabs{display:flex;gap:4px;border-bottom:1.5px solid var(--line)}
+.tab{font:inherit;font-family:var(--display);font-weight:700;font-size:17px;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1.5px;padding:10px 16px;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.label{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:15px;border:1.5px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:7px 14px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.chip .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.chip[aria-pressed="true"] .n{color:var(--accent)}
+.chip.new::after{content:"New in 2026";font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;background:var(--gold-soft);color:var(--gold);padding:2px 6px;border-radius:4px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.btn{font:inherit;font-weight:700;font-size:16px;border:0;border-radius:8px;padding:12px 20px;cursor:pointer;background:var(--accent);color:var(--surface)}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn.small{font-size:14px;padding:8px 14px}
+.btn:disabled{opacity:.45;cursor:default}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.note{font-size:13px;color:var(--muted)}
+.weights{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.weights li{border-top:2px solid var(--line);padding-top:8px;font-size:14px;color:var(--muted)}
+.weights li.up{border-top-color:var(--gold)}
+.weights b{display:block;color:var(--fg);font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+/* quiz */
+.rail{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.rail i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rx{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.rx-head{display:flex;justify-content:space-between;gap:12px;padding:10px 18px;border-bottom:1px dashed var(--line);font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.rx-head .dom{color:var(--accent)}
+.rx-body{padding:20px 18px;display:flex;flex-direction:column;gap:16px}
+.q{font-size:19px;font-weight:700;min-width:0}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{font:inherit;text-align:left;display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1.5px solid var(--line);border-radius:8px;background:transparent;color:var(--fg);cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--mono);font-size:13px;min-width:22px;height:22px;border-radius:5px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none;margin-top:1px}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.right .k{background:var(--good);color:var(--surface)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .k{background:var(--bad);color:var(--surface)}
+.opt:disabled{cursor:default}
+.why{border-left:3px solid var(--good);padding:4px 0 4px 14px}
+.why.miss{border-color:var(--bad)}
+.why strong{display:block;font-family:var(--display)}
+/* results */
+.score{font-family:var(--display);font-size:clamp(44px,10vw,64px);line-height:1;font-variant-numeric:tabular-nums}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(0,180px) 1fr 64px;gap:12px;align-items:center;font-size:14px}
+.bar .t{height:10px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar .t i{display:block;height:100%;background:var(--accent)}
+.bar .v{font-family:var(--mono);font-size:13px;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.missed{display:flex;flex-direction:column;gap:12px}
+.mi{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+.mi .qq{font-weight:700}
+.mi .ans{color:var(--good)}
+.mi .yours{color:var(--bad);font-size:14px}
+.mi .ex{color:var(--muted);font-size:15px}
+/* games */
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.gcard{font:inherit;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:8px;color:var(--fg);cursor:pointer}
+.gcard:hover{border-color:var(--accent)}
+.gcard .tag{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.gcard p{color:var(--muted);font-size:15px}
+.hud{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.hud b{color:var(--fg);font-size:18px}
+.timer{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.timer i{display:block;height:100%;background:var(--gold);transition:width 1s linear}
+.prompt{font-family:var(--display);font-size:clamp(24px,6vw,34px);font-weight:700;text-align:center;padding:22px 8px;min-height:3.2em;display:grid;place-items:center;border-radius:10px;border:1.5px dashed var(--line);transition:background .2s}
+.prompt.ok{background:var(--good-soft);border-color:var(--good)}
+.prompt.no{background:var(--bad-soft);border-color:var(--bad)}
+.prompt small{display:block;font-family:var(--body);font-size:15px;font-weight:400;color:var(--muted);margin-top:6px}
+.sched{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.sbtn{font:inherit;font-family:var(--mono);font-size:18px;padding:16px 0;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--fg);cursor:pointer}
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tf .sbtn{font-family:var(--display);font-weight:700}
+.tf .stemb{font-family:var(--body);font-size:15px;line-height:1.25;padding:14px 10px}
+.feedback{min-height:1.5em;text-align:center;font-size:15px;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media (min-width:560px){.tiles{grid-template-columns:repeat(4,1fr)}}
+.tile{font:inherit;font-size:14px;line-height:1.3;min-height:84px;padding:10px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;display:grid;place-items:center;text-align:center}
+.tile.term{font-family:var(--mono);font-size:15px;color:var(--accent)}
+.tile.sel{border-color:var(--gold);background:var(--gold-soft)}
+.tile.done{border-color:var(--good);background:var(--good-soft);color:var(--good);cursor:default}
+.tile.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+[hidden]{display:none!important}
+.tabs{overflow-x:auto;scrollbar-width:none}
+.tab{white-space:nowrap}
+/* study guide */
+.guide{display:flex;flex-direction:column;gap:18px;max-width:68ch}
+.guide h3{font-size:19px;margin-top:6px}
+.guide p,.guide li{font-size:16px}
+.guide ul,.guide ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.guide .sum{font-size:18px;color:var(--fg)}
+.callout{border:1.5px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.callout .label{color:var(--accent)}
+.warn{border-color:var(--gold);background:var(--gold-soft)}
+.warn .label{color:var(--gold)}
+.terms{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:10px 18px;margin:0}
+.terms dt{font-weight:700;font-family:var(--display)}
+.terms dd{margin:0;color:var(--fg)}
+@media (max-width:520px){.terms{grid-template-columns:1fr;gap:2px}.terms dd{margin-bottom:10px}}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+.tbl table{border-collapse:collapse;width:100%;min-width:480px;font-size:15px}
+.tbl th,.tbl td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-family:var(--display);background:var(--accent-soft);font-size:14px}
+.tbl tr:last-child td{border-bottom:0}
+.steps{counter-reset:s;list-style:none;padding-left:0!important}
+.steps li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:10px}
+.steps li::before{content:counter(s);font-family:var(--mono);font-size:13px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--surface);display:grid;place-items:center}
+.stemlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.stem{border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.stem .sh{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.stem .sh b{font-family:var(--mono);font-size:15px;color:var(--accent)}
+.stem .sh span{font-weight:700}
+.stem .sx{font-size:14px;color:var(--muted)}
+.stem .sr{font-style:italic;font-size:15px;border-top:1px dashed var(--line);padding-top:6px;margin-top:2px}
+.gnav{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;border-top:1px solid var(--line);padding-top:16px}
+@media (max-width:480px){.bar{grid-template-columns:1fr 56px}.bar .t{grid-column:1/-1;order:3}.sbtn{font-size:15px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Pharmacy Technician Certification Exam · 2026 outline</div>
+    <h1>PTCB Practice Bank</h1>
+    <p class="lede">Learn each topic in the Study Guide, then practice with quizzes that shuffle every time and math that uses new numbers. Work real pharmacy cases in the Sim Lab, review fast with games, and download printable worksheets with answer keys.</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-learn" data-v="learn">Study Guide</button>
+    <button class="tab" role="tab" id="tab-practice" data-v="practice">Practice</button>
+    <button class="tab" role="tab" id="tab-sim" data-v="sim">Sim Lab</button>
+    <button class="tab" role="tab" id="tab-games" data-v="games">Games</button>
+  </nav>
+
+  <!-- PRACTICE -->
+  <div id="setup" style="display:flex;flex-direction:column;gap:22px">
+  <section class="panel">
+    <h2>Quick quizzes</h2>
+    <div class="games" id="presets"></div>
+  </section>
+  <section class="panel">
+    <div class="row">
+      <h2>Build your own</h2>
+      <button class="btn ghost small" id="lawFocus">Law focus</button>
+    </div>
+    <div class="field">
+      <span class="label">Topics</span>
+      <div class="chips" id="domChips"></div>
+    </div>
+    <div class="field">
+      <span class="label">Number of questions</span>
+      <div class="chips" id="countChips"></div>
+    </div>
+    <div class="row">
+      <span class="note" id="poolNote"></span>
+      <div class="chips">
+        <button class="btn ghost dl" id="wsBtn" hidden>Download printable worksheet</button>
+        <button class="btn" id="startBtn">Start practice</button>
+      </div>
+    </div>
+    <p class="note" id="wsNote" hidden>The worksheet uses your topics and question count, shuffled fresh each time, with an answer key on the last page. Open the file in any browser to print it or save it as a PDF.</p>
+    <div class="field">
+      <span class="label">How the 2026 exam is weighted</span>
+      <ul class="weights">
+        <li>Medications<b>35%</b>down from 40%</li>
+        <li class="up">Federal Requirements<b>18.75%</b>up from 12.5%</li>
+        <li>Patient Safety<b>23.75%</b>down from 26.25%</li>
+        <li>Order Entry<b>22.5%</b>up from 21.25%</li>
+      </ul>
+      <p class="note">DSCSA is the new knowledge area under Federal Requirements. Alligation and nonsterile compounding were removed from the outline.</p>
+    </div>
+  </section>
+  </div>
+
+  <section id="quiz" hidden aria-live="polite">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="meta"><span id="qPos"></span><span id="qScore"></span></div>
+      <div class="rail"><i id="railFill" style="width:0"></i></div>
+      <article class="rx">
+        <div class="rx-head"><span class="dom" id="qDom"></span><span id="qRx"></span></div>
+        <div class="rx-body">
+          <p class="q" id="qText"></p>
+          <div class="opts" id="qOpts"></div>
+          <div id="qWhy"></div>
+          <div class="row">
+            <button class="btn ghost" id="quitBtn">End session</button>
+            <button class="btn" id="nextBtn" disabled>Next question</button>
+          </div>
+        </div>
+      </article>
+      <p class="note">Tip: press 1 to 4 to answer and Enter for the next question.</p>
+    </div>
+  </section>
+
+  <section id="results" class="panel" hidden>
+    <div class="eyebrow">Session results</div>
+    <div class="row" style="align-items:flex-end">
+      <div><div class="score" id="rScore"></div><div class="note" id="rDetail"></div></div>
+      <div class="chips">
+        <button class="btn ghost dl" id="rDl" hidden>Download results</button>
+        <button class="btn ghost" id="retryBtn">Retry missed</button>
+        <button class="btn" id="againBtn">New session</button>
+      </div>
+    </div>
+    <span class="label">By topic</span>
+    <div class="bars" id="rBars"></div>
+    <span class="label" id="missLabel">Review what you missed</span>
+    <div class="missed" id="rMissed"></div>
+  </section>
+
+  <!-- STUDY GUIDE -->
+  <section id="learnMenu" hidden style="display:flex;flex-direction:column;gap:14px">
+    <div class="row">
+      <p class="lede" style="margin:0">Plain-language explanations of every exam topic. Read a topic, then quiz yourself on it.</p>
+      <button class="btn ghost small dl" id="guideDl" hidden>Download full study guide</button>
+    </div>
+    <div class="games" id="guideCards"></div>
+  </section>
+  <section id="learnArea" class="panel" hidden>
+    <div class="row"><div><div class="eyebrow" id="gTag"></div><h2 id="gHead"></h2></div><button class="btn ghost small" id="gList">All topics</button></div>
+    <article class="guide" id="gText"></article>
+    <div class="gnav">
+      <button class="btn ghost small" id="gPrev"></button>
+      <div class="chips"><button class="btn" id="gQuiz">Quiz me on this</button><button class="btn ghost small" id="gNext"></button></div>
+    </div>
+  </section>
+
+  <!-- SIM LAB -->
+  <section id="simMenu" hidden style="display:flex;flex-direction:column;gap:14px">
+    <p class="lede" style="margin:0">Work a shift in the pharmacy. Each case puts you at a station and asks what a technician should do next, step by step.</p>
+    <div class="games" id="simCards"></div>
+  </section>
+  <section id="simArea" class="panel" hidden>
+    <div class="row"><div><div class="eyebrow" id="sStation"></div><h2 id="sTitle"></h2></div><button class="btn ghost small" id="sBack">All cases</button></div>
+    <div id="sBody"></div>
+  </section>
+
+  <!-- GAMES -->
+  <section id="gameMenu" hidden>
+    <div class="games">
+      <button class="gcard" data-g="sched"><span class="tag">60 seconds</span><h3>Schedule Sort</h3><p>A drug appears. Tap its DEA schedule before time runs out.</p></button>
+      <button class="gcard" data-g="match"><span class="tag">Memory match</span><h3>Law Match</h3><p>Pair DEA forms, DSCSA rules and limits with what they mean.</p></button>
+      <button class="gcard" data-g="tf"><span class="tag">60 seconds</span><h3>Lightning Round</h3><p>True or false on federal law and DSCSA. Build a streak.</p></button>
+      <button class="gcard" data-g="stem"><span class="tag">60 seconds</span><h3>Stem Sprint</h3><p>A generic name appears. Pick its drug class from the stem.</p></button>
+    </div>
+  </section>
+
+  <section id="gameArea" class="panel" hidden>
+    <div class="row"><h2 id="gTitle"></h2><button class="btn ghost small" id="gBack">All games</button></div>
+    <div id="gBody"></div>
+  </section>
+
+  <p class="note">Study questions written for practice and aligned to the PTCB topic areas. They are not official PTCB items. Confirm state-specific rules with your state board of pharmacy.</p>
+</div>
+
+<script>
+const DOMAINS={
+  med:{name:"Medications"},
+  stems:{name:"Drug Stems"},
+  calc:{name:"Calculations"},
+  law:{name:"Federal Law"},
+  dscsa:{name:"DSCSA",isNew:true},
+  interact:{name:"Drug Interactions"},
+  storage:{name:"Storage & Handling"},
+  safe:{name:"Patient Safety"},
+  order:{name:"Order Entry"}
+};
+// [domain, question, options, correct index, explanation]
+const BANK=[
+["med","What is the generic name for Lipitor?",["Simvastatin","Atorvastatin","Rosuvastatin","Pravastatin"],1,"Lipitor is atorvastatin, a statin. Zocor is simvastatin, Crestor is rosuvastatin, and Pravachol is pravastatin."],
+["med","Which brand name matches metoprolol succinate extended-release?",["Lopressor","Tenormin","Toprol-XL","Coreg"],2,"Toprol-XL is metoprolol succinate ER. Lopressor is metoprolol tartrate, Tenormin is atenolol, and Coreg is carvedilol."],
+["med","A patient on lisinopril has a dry, nagging cough. Which drug class commonly causes this?",["ACE inhibitors","Beta blockers","Calcium channel blockers","Loop diuretics"],0,"Lisinopril is an ACE inhibitor (the -pril ending). Dry cough is a well-known side effect of this class."],
+["med","Losartan belongs to which drug class?",["ACE inhibitor","Angiotensin II receptor blocker (ARB)","Beta blocker","Thiazide diuretic"],1,"The -sartan ending marks an ARB, often used when a patient cannot tolerate the ACE inhibitor cough."],
+["med","Which medication is a proton pump inhibitor (PPI)?",["Famotidine","Ondansetron","Omeprazole","Loratadine"],2,"Omeprazole is a PPI (-prazole). Famotidine is an H2 blocker, ondansetron is an antiemetic, and loratadine is an antihistamine."],
+["med","What is used to reverse the effects of warfarin?",["Protamine sulfate","Vitamin K (phytonadione)","Naloxone","Flumazenil"],1,"Vitamin K reverses warfarin. Protamine reverses heparin, naloxone reverses opioids, and flumazenil reverses benzodiazepines."],
+["med","What is the generic name for Synthroid?",["Liothyronine","Levothyroxine","Methimazole","Levetiracetam"],1,"Synthroid is levothyroxine. It is taken on an empty stomach, usually 30 to 60 minutes before breakfast."],
+["med","Sertraline (Zoloft) belongs to which drug class?",["SSRI","Benzodiazepine","MAO inhibitor","Tricyclic antidepressant"],0,"Sertraline is a selective serotonin reuptake inhibitor (SSRI)."],
+["med","Amlodipine (Norvasc) is classified as a:",["Beta blocker","Calcium channel blocker","ACE inhibitor","Diuretic"],1,"Amlodipine is a calcium channel blocker. Ankle swelling is a common side effect."],
+["med","Which drug is a loop diuretic?",["Hydrochlorothiazide","Spironolactone","Furosemide","Metolazone"],2,"Furosemide (Lasix) is a loop diuretic. Spironolactone is potassium-sparing; the others are thiazide-type."],
+["med","Metformin (Glucophage) belongs to which class?",["Sulfonylurea","Biguanide","DPP-4 inhibitor","Insulin"],1,"Metformin is a biguanide and a first-line drug for type 2 diabetes."],
+["med","A patient taking alendronate (Fosamax) should be told to:",["Take it with milk at bedtime","Take it with food","Take it with plain water and stay upright for at least 30 minutes","Crush it into applesauce"],2,"Alendronate is taken in the morning with plain water, 30 minutes before food, staying upright to protect the esophagus."],
+["med","Grapefruit juice raises blood levels of which statin the most?",["Simvastatin","Pravastatin","Rosuvastatin","None of them"],0,"Simvastatin is broken down by CYP3A4, which grapefruit blocks. Pravastatin and rosuvastatin are much less affected."],
+["med","Clopidogrel (Plavix) works as a:",["Anticoagulant","Antiplatelet","Thrombolytic","Statin"],1,"Clopidogrel keeps platelets from clumping. It is often used after a stent or heart attack."],
+["med","Naloxone (Narcan) is used to:",["Treat opioid withdrawal","Reverse an opioid overdose","Treat alcohol dependence","Relieve pain"],1,"Naloxone is an opioid antagonist that reverses overdose, including slowed breathing."],
+["med","What is the brand name for gabapentin?",["Lyrica","Neurontin","Topamax","Keppra"],1,"Neurontin is gabapentin. Lyrica is pregabalin, Topamax is topiramate, and Keppra is levetiracetam."],
+["med","Albuterol inhalers are used as:",["A daily steroid controller","A short-acting rescue inhaler","An antibiotic","A long-acting maintenance drug"],1,"Albuterol is a short-acting beta-2 agonist for quick relief of asthma or COPD symptoms."],
+["med","Insulin glargine (Lantus) is classified as:",["Rapid-acting","Short-acting","Intermediate-acting","Long-acting"],3,"Insulin glargine is a long-acting basal insulin usually given once daily."],
+["med","Why should doxycycline not be taken with milk or antacids?",["They cause drowsiness","Calcium, magnesium and aluminum bind the drug and reduce absorption","They cause an allergic reaction","They speed up the drug"],1,"Tetracyclines bind to calcium, magnesium, aluminum and iron, which lowers absorption."],
+["med","Which ending identifies a fluoroquinolone antibiotic?",["-cillin","-mycin","-floxacin","-cycline"],2,"Fluoroquinolones end in -floxacin, such as ciprofloxacin and levofloxacin."],
+["med","How should unopened insulin be stored?",["Room temperature","Refrigerator, 2 to 8 degrees C (36 to 46 degrees F)","Freezer","A warm cabinet"],1,"Unopened insulin is refrigerated and never frozen."],
+["med","Which drug is a benzodiazepine?",["Buspirone","Alprazolam","Zolpidem","Trazodone"],1,"Alprazolam (Xanax) is a benzodiazepine."],
+["med","A patient fills sertraline and fluoxetine prescriptions from two prescribers. What problem should be flagged?",["Therapeutic duplication","Drug-food interaction","Allergy","Wrong dosage form"],0,"Both are SSRIs. Two drugs from the same class for the same purpose is a therapeutic duplication the pharmacist must review."],
+["med","Which pair is a therapeutic duplication?",["Omeprazole and pantoprazole","Lisinopril and atorvastatin","Metformin and levothyroxine","Albuterol and montelukast"],0,"Omeprazole and pantoprazole are both PPIs. The other pairs treat different conditions."],
+["med","A patient on daily naproxen picks up ibuprofen for back pain. What is the concern?",["Therapeutic duplication of NSAIDs","No concern","Ibuprofen cancels naproxen","Naproxen is a controlled substance"],0,"Both are NSAIDs. Taking two raises the risk of stomach bleeding and kidney problems."],
+
+["law","Which DEA form is used to order Schedule II controlled substances?",["DEA Form 41","DEA Form 106","DEA Form 222","DEA Form 224"],2,"DEA Form 222, or the electronic system CSOS, is used to order C-II drugs."],
+["law","Which DEA form reports theft or significant loss of controlled substances?",["DEA Form 41","DEA Form 106","DEA Form 222","DEA Form 363"],1,"DEA Form 106 reports theft or significant loss."],
+["law","Which DEA form documents destruction of controlled substances?",["DEA Form 41","DEA Form 106","DEA Form 224","DEA Form 222"],0,"DEA Form 41 records controlled substances that are destroyed."],
+["law","Which DEA form does a retail pharmacy use to register with the DEA?",["DEA Form 222","DEA Form 224","DEA Form 225","DEA Form 106"],1,"DEA Form 224 registers pharmacies, hospitals and practitioners."],
+["law","How often must a pharmacy's DEA registration be renewed?",["Every year","Every 2 years","Every 3 years","Every 5 years"],2,"DEA registrations for pharmacies are renewed every 3 years."],
+["law","Under federal law, how many refills are allowed for a Schedule III to V prescription?",["None","Up to 5 refills within 6 months","Up to 11 refills within 1 year","Unlimited"],1,"C-III to C-V prescriptions may be refilled up to 5 times within 6 months of the date written."],
+["law","How many refills are allowed on a Schedule II prescription?",["None","1","5","11"],0,"Schedule II prescriptions cannot be refilled."],
+["law","How many times can a C-III to C-V refill be transferred between pharmacies that do not share a real-time database?",["Never","One time","Two times","Unlimited"],1,"Federal law allows a one-time transfer. Pharmacies sharing a real-time online database may transfer up to the refills allowed."],
+["law","A prescriber calls in an emergency C-II prescription. Within how many days must the written prescription arrive?",["24 hours","3 days","7 days","30 days"],2,"The prescriber must deliver a written or electronic prescription within 7 days."],
+["law","For a patient in long-term care or with a terminal illness, C-II partial fills may be dispensed for up to:",["7 days","30 days","60 days","90 days"],2,"Partial fills for these patients may continue for up to 60 days from the date issued."],
+["law","Hydrocodone combination products such as hydrocodone/acetaminophen are in which schedule?",["Schedule II","Schedule III","Schedule IV","Schedule V"],0,"The DEA moved all hydrocodone combination products to C-II in 2014."],
+["law","Alprazolam is in which schedule?",["Schedule II","Schedule III","Schedule IV","Schedule V"],2,"Benzodiazepines such as alprazolam are Schedule IV."],
+["law","Buprenorphine is in which schedule?",["Schedule II","Schedule III","Schedule IV","Schedule V"],1,"Buprenorphine is Schedule III."],
+["law","Tramadol is in which schedule?",["Schedule II","Schedule III","Schedule IV","Schedule V"],2,"Tramadol has been Schedule IV since 2014."],
+["law","Which drug is Schedule I?",["Oxycodone","Heroin","Codeine","Diazepam"],1,"Schedule I drugs, such as heroin, have no accepted medical use in the US."],
+["law","Pregabalin (Lyrica) is in which schedule?",["Schedule II","Schedule III","Schedule IV","Schedule V"],3,"Pregabalin is Schedule V."],
+["law","How often must a complete controlled substance inventory be taken under federal law?",["Monthly","Every 6 months","Yearly","Every 2 years"],3,"Federal law requires a biennial inventory, every 2 years."],
+["law","During the biennial inventory, which drugs must be counted exactly even when the bottle is already open?",["Schedule V drugs","Schedule II drugs","Schedule IV drugs","None. Open bottles are always estimated"],1,"C-II drugs must be counted exactly. Open C-III to C-V containers can be estimated unless the container holds more than 1,000 units."],
+["law","Under federal law, controlled substance records must be kept for at least:",["1 year","2 years","5 years","7 years"],1,"Federal law requires at least 2 years. Many states require longer."],
+["law","What is the daily purchase limit for pseudoephedrine?",["3.6 g","7.5 g","9 g","15 g"],0,"The Combat Methamphetamine Epidemic Act limits sales to 3.6 g per day."],
+["law","What is the 30-day pseudoephedrine limit for retail buyers?",["3.6 g","7.5 g","9 g","12 g"],2,"Retail buyers are limited to 9 g in 30 days. Mail-order buyers are limited to 7.5 g."],
+["law","Which is required when selling pseudoephedrine?",["A prescription","Photo ID and a logbook entry","A pharmacist's signature only","Nothing"],1,"Buyers show photo ID and are recorded in a logbook kept for at least 2 years."],
+["law","Which law requires most prescription drugs to be dispensed in child-resistant containers?",["Controlled Substances Act","Poison Prevention Packaging Act","HIPAA","Kefauver-Harris Amendment"],1,"The Poison Prevention Packaging Act of 1970 requires child-resistant packaging. Patients may request standard caps."],
+["law","Which recall class is the most serious?",["Class I","Class II","Class III","Market withdrawal"],0,"Class I means use could cause serious harm or death."],
+["law","A recall where the product may cause temporary or reversible health problems is:",["Class I","Class II","Class III","Market withdrawal"],1,"Class II covers temporary or medically reversible effects."],
+["law","A recall where the product is unlikely to cause harm, such as a labeling error, is:",["Class I","Class II","Class III","Not a recall"],2,"Class III recalls are unlikely to cause adverse health effects."],
+["law","Isotretinoin dispensing is managed under which REMS program?",["iPLEDGE","TIRF REMS","Opioid Analgesic REMS","There is no REMS"],0,"Isotretinoin causes birth defects, so patients, prescribers and pharmacies register in iPLEDGE."],
+["law","What does REMS stand for?",["Risk Evaluation and Mitigation Strategy","Rx Entry Management System","Regulated Medication Supply","Required Equipment for Medication Safety"],0,"A REMS is an FDA program for drugs with serious risks, which may limit who can prescribe or dispense them."],
+["law","Which federal law protects a patient's health information?",["OBRA '90","HIPAA","DSHEA","FDCA"],1,"HIPAA protects the privacy and security of protected health information (PHI)."],
+["law","Which law requires an offer to counsel Medicaid patients?",["HIPAA","OBRA '90","Durham-Humphrey Amendment","Orphan Drug Act"],1,"OBRA '90 requires an offer to counsel and a drug review for Medicaid patients."],
+["law","Which law created the split between prescription (legend) and OTC drugs?",["Durham-Humphrey Amendment","Kefauver-Harris Amendment","Food, Drug, and Cosmetic Act of 1938","Hatch-Waxman Act"],0,"The 1951 Durham-Humphrey Amendment defined legend drugs."],
+["law","Which law requires drugs to be proven effective as well as safe?",["Pure Food and Drug Act","Kefauver-Harris Amendment","Durham-Humphrey Amendment","Controlled Substances Act"],1,"The 1962 Kefauver-Harris Amendment followed the thalidomide tragedy."],
+["law","Which FDA handout must be given with certain drugs, such as NSAIDs and antidepressants?",["Package insert","Medication Guide","Safety Data Sheet","Patient profile"],1,"Medication Guides are FDA-approved handouts given each time these drugs are dispensed."],
+["law","Which warning is required on C-II to C-IV prescription labels?",["Shake well","Caution: Federal law prohibits the transfer of this drug to any person other than the patient for whom it was prescribed","Keep refrigerated","Take with food"],1,"This transfer warning is required on labels for Schedule II, III and IV drugs."],
+["law","Expired controlled substances are usually returned for credit or destruction through a:",["Wholesaler sales rep","Reverse distributor","Patient take-back box","Prescriber"],1,"A DEA-registered reverse distributor handles expired and unwanted controlled stock."],
+["law","How can patients safely dispose of unused controlled substances?",["Hand them to the technician at the counter","Use a DEA-authorized collector or take-back event","Give them to a neighbor","Mail them to the DEA"],1,"DEA-authorized collection sites and take-back events accept patients' unused controlled drugs."],
+["law","Under the EPA's Subpart P rule, hazardous waste pharmaceuticals:",["May be flushed down the drain","May not be sewered (flushed or poured down a drain)","Go in regular trash","Are returned to patients"],1,"Subpart P bans sewering hazardous waste pharmaceuticals."],
+["law","Which agency registers pharmacies to handle controlled substances?",["FDA","DEA","EPA","CMS"],1,"The Drug Enforcement Administration (DEA) registers and regulates controlled substance handlers."],
+["law","Which USP chapter covers sterile compounding?",["USP <795>","USP <797>","USP <800>","USP <825>"],1,"USP <797> covers sterile compounding. <800> covers hazardous drugs."],
+
+["dscsa","What is the main goal of the Drug Supply Chain Security Act (DSCSA)?",["Set drug prices","Trace prescription drugs at the package level through the supply chain","Control opioid prescribing","Regulate dietary supplements"],1,"DSCSA builds an electronic system to identify and trace prescription drugs, protecting patients from counterfeit, stolen or contaminated products."],
+["dscsa","DSCSA became law in what year?",["1970","2003","2013","2023"],2,"DSCSA was enacted in 2013 as Title II of the Drug Quality and Security Act. Its enhanced electronic tracing requirements began in 2023."],
+["dscsa","Under DSCSA, how long must transaction records be kept?",["1 year","2 years","6 years","10 years"],2,"DSCSA requires trading partners, including pharmacies, to keep transaction records for 6 years."],
+["dscsa","After a pharmacy determines a product is illegitimate, how soon must it notify the FDA?",["Within 24 hours","Within 3 days","Within 7 days","Within 30 days"],0,"The FDA and affected trading partners must be notified within 24 hours."],
+["dscsa","Which FDA form is used to report an illegitimate product?",["Form FDA 3500","Form FDA 3911","DEA Form 106","DEA Form 41"],1,"Form FDA 3911 is used for illegitimate product notifications. Form FDA 3500 is MedWatch."],
+["dscsa","A pharmacy receives a bottle with a broken seal and unusual labeling. What should happen first?",["Dispense it if the count is right","Quarantine it and investigate","Throw it away","Return it to stock"],1,"A suspect product is set aside (quarantined) so it cannot be dispensed while it is investigated."],
+["dscsa","What four elements make up a DSCSA product identifier?",["NDC, serial number, lot number, expiration date","Brand name, price, NDC, manufacturer","DEA number, NDC, lot number, schedule","Patient name, NDC, quantity, date"],0,"The product identifier includes the NDC, a unique serial number, the lot number and the expiration date."],
+["dscsa","Where is the DSCSA product identifier found on a package?",["Inside the package insert","In a 2D data matrix barcode and human-readable text","On the shipping invoice only","On the pharmacy label"],1,"Manufacturers print it in a 2D data matrix barcode plus human-readable form on each package."],
+["dscsa","Under DSCSA, a pharmacy may buy prescription drugs only from:",["Any seller with the lowest price","Authorized trading partners (properly licensed or registered)","Online marketplaces","Other patients"],1,"Trading partners must be authorized, meaning licensed or registered as required."],
+["dscsa","Which is NOT part of DSCSA transaction information (TI)?",["Product name and strength","NDC and lot number","Date of the transaction","The patient's name"],3,"TI describes the product and the sale between trading partners. Patient information is not part of it."],
+["dscsa","What is a transaction statement (TS)?",["A price quote","The seller's written attestation that it is authorized and followed DSCSA rules","A patient receipt","A DEA order form"],1,"The TS is the seller's statement that it is authorized, received proper documentation and did not knowingly ship suspect or illegitimate product."],
+["dscsa","The 'three Ts' of DSCSA documentation are:",["Transaction information, transaction history, transaction statement","Tracking, tracing, testing","Time, temperature, transport","Tablet, tube, topical"],0,"These are the tracing documents. Under the enhanced 2023 requirements, transaction history is no longer required, but TI and TS are."],
+["dscsa","What is the difference between a suspect product and an illegitimate product?",["There is no difference","Suspect means there is reason to believe it may be bad; illegitimate means there is credible evidence it is","Suspect is for OTCs only","Illegitimate means expired"],1,"A suspect product needs investigation. It becomes illegitimate once there is credible evidence it is counterfeit, diverted, stolen or otherwise unfit."],
+["dscsa","Which is an example of a possibly suspect product?",["A product from your usual wholesaler at normal price","A product offered by an unknown seller far below market price","A product with a recent lot number","An OTC vitamin"],1,"Unusual sellers, prices far below market, damaged seals and odd labeling are warning signs of a suspect product."],
+["dscsa","Before accepting ownership of a product, a pharmacy must receive:",["The transaction information and transaction statement","Only an invoice","A DEA Form 222 for all drugs","Nothing"],0,"Dispensers may not accept ownership of product without the required transaction documentation."],
+["dscsa","When a product is determined illegitimate, who must be notified?",["Only the patient","The FDA and the immediate trading partners","Only the state board","The DEA only"],1,"The pharmacy notifies the FDA and its trading partners, typically within 24 hours."],
+
+["safe","What is the purpose of Tall Man lettering (hydrOXYzine vs. hydrALAZINE)?",["Mark controlled substances","Show high-cost drugs","Reduce mix-ups between look-alike names","Mark brand products"],2,"Capital letters highlight how look-alike names differ."],
+["safe","Why should 'U' never be used for units?",["It is informal","It can be read as 0 or 4, causing a large overdose","It is only for IV drugs","It means unit dose"],1,"The Joint Commission Do Not Use list says to write 'units'."],
+["safe","How should a dose of five milligrams be written?",["5.0 mg","5 mg","5.00 mg","05 mg"],1,"Never use a trailing zero. 5.0 mg can be misread as 50 mg."],
+["safe","How should a dose of one-half milligram be written?",[".5 mg","0.5 mg","0.50 mg","1/2 mg"],1,"Always use a leading zero. .5 mg can be misread as 5 mg."],
+["safe","Which drug is considered high-alert by ISMP?",["Insulin","Loratadine","Docusate","Calcium carbonate"],0,"High-alert drugs, such as insulin, anticoagulants and opioids, cause serious harm when used in error."],
+["safe","Which pair is a known look-alike/sound-alike error?",["Celebrex and Celexa","Lipitor and Zoloft","Advil and Tylenol","Lasix and Norvasc"],0,"Celebrex (celecoxib) and Celexa (citalopram) look and sound alike."],
+["safe","Which process looks for the system causes behind a medication error?",["Root cause analysis","Inventory audit","Prior authorization","Formulary review"],0,"A root cause analysis looks past blame to find system problems."],
+["safe","Which FDA program collects reports of adverse drug events?",["VAERS","MedWatch","iPLEDGE","CSOS"],1,"MedWatch covers drugs and medical products. VAERS covers vaccines."],
+["safe","Which system collects reports of adverse events after vaccines?",["MedWatch","VAERS","ISMP MERP","CSOS"],1,"VAERS is run by the CDC and FDA for vaccine-related adverse events only."],
+["safe","When garbing for sterile compounding, what goes on first?",["Sterile gloves","Gown","Shoe covers","Face mask"],2,"Garb goes from dirtiest to cleanest: shoe covers, head and facial hair covers, mask, hand washing, gown, then sterile gloves."],
+["safe","What is used to clean a laminar airflow hood?",["Bleach only","Sterile 70% isopropyl alcohol","Soap and tap water","Hydrogen peroxide"],1,"Sterile 70% IPA, cleaning back to front and top to bottom."],
+["safe","A patient asks if they can take their new prescription with ibuprofen. What should the technician do?",["Answer from experience","Say it is fine","Refer the question to the pharmacist","Look it up online and answer"],2,"Clinical questions go to the pharmacist."],
+["safe","Which USP chapter covers handling hazardous drugs such as methotrexate?",["USP <795>","USP <797>","USP <800>","USP <71>"],2,"USP <800> protects workers and patients when handling hazardous drugs."],
+["safe","What does scanning the product barcode at filling help prevent?",["Insurance rejections","Dispensing the wrong drug or strength","Late refills","Price errors"],1,"Scanning checks the NDC against the prescription."],
+["safe","A prescription reads 'Lisinopril 10 mg QD.' Why is QD on The Joint Commission's Do Not Use list?",["It can be misread as QOD (every other day) or QID (four times a day)","It is the Latin abbreviation for every other day","It may only be used on hospital orders","Insurance plans reject claims that use it"],0,"QD and QOD are easily mistaken for each other, and the period after the Q can look like an I, turning QD into QID. Either mistake changes the dose. Write 'daily' and 'every other day' instead. In practice, you will still see QD on prescriptions, because the list is required only in Joint Commission-accredited settings such as hospitals and does not cover built-in electronic prescribing selections. When you see it, enter 'daily' on the label."],
+["safe","Automated dispensing cabinets help prevent errors mainly by:",["Lowering drug prices","Limiting access and requiring scans or profile checks before removal","Replacing the pharmacist","Printing labels"],1,"ADCs restrict access to profiled drugs and track who removed what."],
+
+["order","What does the sig '1 tab po bid prn' mean?",["1 tablet by mouth twice daily as needed","1 tablet by mouth at bedtime as needed","1 tablet by mouth three times daily","1 tablet under the tongue twice daily as needed"],0,"po = by mouth, bid = twice daily, prn = as needed."],
+["order","What does 'ac' mean?",["After meals","Before meals","At bedtime","As needed"],1,"ac = before meals. pc = after meals."],
+["order","What does 'qhs' mean?",["Every hour","Every bedtime","Every half hour","Every morning"],1,"qhs = every night at bedtime."],
+["order","Sig: 2 gtt OU BID. Where are the drops placed?",["Right eye","Left eye","Both eyes","Both ears"],2,"OU = both eyes. OD = right eye, OS = left eye, AU = both ears."],
+["order","What does 'SL' mean?",["Slowly","Sublingual (under the tongue)","Sliding scale","Single layer"],1,"SL = sublingual, as with nitroglycerin tablets."],
+["order","What are the three segments of an NDC?",["Manufacturer, lot, expiration","Labeler, product, package","Class, strength, form","Labeler, strength, lot"],1,"Labeler code, product code and package code."],
+["order","Dr. Sarah Brown writes a prescription. Which DEA number passes the check?",["BB1234563","BB1234565","BX1234563","BB123456"],0,"1+3+5 = 9. (2+4+6) x 2 = 24. 9 + 24 = 33, so the check digit is 3. The second letter B matches Brown."],
+["order","What does DAW code 1 mean?",["Substitution allowed","Prescriber requires the brand","Patient requested the brand","Brand not available"],1,"DAW 1 = prescriber wrote dispense as written. DAW 2 = patient requested brand."],
+["order","A claim rejects as 'refill too soon'. What does this usually mean?",["The Rx expired","The patient should still have medication left","The drug is not covered","The ID is wrong"],1,"Too little of the last days' supply has been used."],
+["order","What is a prior authorization?",["A refill request","Insurer approval needed before a drug is covered","A pharmacy transfer","A DEA registration"],1,"The prescriber must justify the drug to the insurer before the plan pays."],
+["order","Why is the lot number tracked?",["To set price","To find affected product in a recall","To show the schedule","To identify the patient"],1,"Lot numbers identify exactly which stock is affected by a recall."],
+["order","Controlled room temperature is:",["2 to 8 degrees C","8 to 15 degrees C","20 to 25 degrees C (68 to 77 degrees F)","30 to 40 degrees C"],2,"USP controlled room temperature is 20 to 25 degrees C."],
+["order","Which auxiliary label belongs on doxycycline?",["May cause drowsiness","Avoid prolonged sun exposure","Shake well","For the eye"],1,"Doxycycline causes photosensitivity."],
+["order","Where should the shortest-dated stock go on the shelf?",["In back","In front, so it is used first","In the refrigerator","Back to the supplier"],1,"Stock rotation keeps shorter-dated items in front."],
+["order","What is a formulary?",["A list of drugs a plan or facility covers or prefers","A compounding recipe","A controlled substance list","An interaction chart"],0,"Plans and hospitals keep formularies of approved or preferred drugs."],
+["order","What does 'NPO' mean?",["Nothing by mouth","No prescription on file","New patient order","Not per orders"],0,"NPO = nothing by mouth."],
+["order","A controlled substance prescription shows the patient's name, the date written, the drug strength and the prescriber's DEA number. All four are required. Which one is required only because the drug is a controlled substance?",["Patient's name","Prescriber's DEA number","Drug strength","Date written"],1,"Every prescription needs the patient's name, the date, the drug and strength, directions and prescriber information. The DEA number (and, under federal rules, the patient's address) is the extra item for controlled substances. If any required item is missing, the pharmacist contacts the prescriber before it can be filled."],
+
+["interact","A patient on warfarin wants to buy aspirin 325 mg to take daily. What is the main concern?",["Reduced warfarin effect","Increased bleeding risk","High blood sugar","No concern"],1,"Aspirin and NSAIDs add to warfarin's bleeding risk. Refer the patient to the pharmacist."],
+["interact","A patient on warfarin suddenly starts eating large salads of kale and spinach every day. What may happen?",["Warfarin works less well","Warfarin becomes toxic","No effect","Severe low blood pressure"],0,"Leafy greens are rich in vitamin K, which counteracts warfarin. Patients should keep vitamin K intake consistent."],
+["interact","Which combination can cause a dangerous drop in blood pressure?",["Nitroglycerin and sildenafil","Metformin and lisinopril","Amoxicillin and ibuprofen","Levothyroxine and atorvastatin"],0,"Nitrates with PDE-5 inhibitors (sildenafil, tadalafil) can cause severe hypotension. This is a contraindication."],
+["interact","A patient on sertraline gets a new prescription for tramadol. What risk should be flagged?",["Serotonin syndrome","Hyperkalemia","Low blood sugar","Kidney stones"],0,"Both raise serotonin. Together they increase the risk of serotonin syndrome and seizures."],
+["interact","A patient taking an MAO inhibitor eats aged cheese and cured meats. What can happen?",["Hypertensive crisis","Low blood pressure","Drowsiness only","Nothing"],0,"Tyramine-rich foods with MAOIs can cause a dangerous spike in blood pressure."],
+["interact","What happens if a patient drinks alcohol while taking metronidazole?",["Nothing","A disulfiram-like reaction with nausea, vomiting and flushing","The antibiotic works faster","Drowsiness only"],1,"Patients should avoid alcohol during metronidazole therapy and for several days after."],
+["interact","A patient on lisinopril gets a new potassium chloride prescription. What should be flagged?",["Hyperkalemia (high potassium)","Hypoglycemia","Bleeding","Serotonin syndrome"],0,"ACE inhibitors raise potassium. Adding potassium supplements or spironolactone increases the risk of high potassium."],
+["interact","Why should ciprofloxacin not be taken at the same time as antacids?",["The antacid makes cipro toxic","Calcium, magnesium and aluminum bind cipro and reduce absorption","It causes drowsiness","No reason"],1,"Fluoroquinolones chelate with multivalent minerals. Separate the doses."],
+["interact","A patient on levothyroxine also takes calcium and iron supplements. What should they do?",["Take them all together","Separate levothyroxine from calcium and iron by about 4 hours","Stop the levothyroxine","Take them with milk"],1,"Calcium and iron reduce levothyroxine absorption, so doses are spaced apart."],
+["interact","Why do opioid and benzodiazepine prescriptions together carry a boxed warning?",["Kidney damage","Severe sedation and slowed or stopped breathing","Weight gain","Hair loss"],1,"Combined CNS depression can cause respiratory depression and death."],
+["interact","A patient on lithium starts taking ibuprofen daily. What is the concern?",["Lithium levels may rise toward toxicity","Lithium stops working","Bleeding","Low potassium"],0,"NSAIDs and thiazide diuretics can reduce lithium clearance and raise its levels."],
+["interact","A patient on digoxin also takes furosemide. Why does this matter?",["Furosemide can lower potassium, which raises the risk of digoxin toxicity","Furosemide blocks digoxin","It raises blood sugar","No concern"],0,"Low potassium from loop diuretics makes the heart more sensitive to digoxin."],
+["interact","Clarithromycin is started in a patient taking simvastatin. What risk increases?",["Muscle damage (myopathy)","Bleeding","Low blood sugar","Serotonin syndrome"],0,"Clarithromycin blocks CYP3A4, raising simvastatin levels and the risk of myopathy and rhabdomyolysis."],
+["interact","A drug interaction alert pops up during data entry. What should the technician do?",["Override it to save time","Bring it to the pharmacist for review","Delete the prescription","Call the patient"],1,"Technicians do not override clinical alerts. The pharmacist reviews every DUR alert."],
+
+["storage","How must nitroglycerin sublingual tablets be stored?",["In a weekly pill organizer","In the original amber glass bottle, tightly capped","In a plastic vial with cotton","In the refrigerator"],1,"Nitroglycerin is volatile and loses potency with exposure to air, heat, moisture and light. Dispense and keep it in the original glass container."],
+["storage","Why should cotton not be added to a nitroglycerin bottle?",["It absorbs the drug and reduces potency","It is a choking risk","It changes the color","It is fine to add"],0,"Cotton can absorb nitroglycerin. Remove the cotton and close the cap tightly after each use."],
+["storage","A patient asks if they can keep their nitroglycerin in the car's glove box. What is the right response?",["Yes, anywhere is fine","No, heat destroys it; keep it at room temperature and refer to the pharmacist","Only in summer","Only if refrigerated"],1,"Heat and moisture reduce potency. Counseling questions go to the pharmacist."],
+["storage","Dabigatran (Pradaxa) capsules should be:",["Moved to a pill organizer","Kept in the original bottle and used within 4 months of opening","Refrigerated","Crushed for easy swallowing"],1,"Dabigatran is moisture-sensitive and stays in its original container."],
+["storage","How long is reconstituted amoxicillin suspension usually good for?",["3 days","7 days","14 days","30 days"],2,"Reconstituted amoxicillin is discarded after 14 days. Refrigeration is preferred for taste."],
+["storage","Reconstituted amoxicillin/clavulanate (Augmentin) suspension should be:",["Kept at room temperature for 30 days","Refrigerated and discarded after 10 days","Frozen","Used within 24 hours"],1,"Augmentin suspension is refrigerated and discarded after 10 days."],
+["storage","Most opened insulin vials may be kept at room temperature for about:",["7 days","14 days","28 days","6 months"],2,"Most in-use insulin vials last 28 days at room temperature. Some products differ, so check the label."],
+["storage","Unopened latanoprost (Xalatan) eye drops are stored:",["At room temperature","In the refrigerator","In the freezer","In direct sunlight"],1,"Unopened bottles are refrigerated. After opening, they may be kept at room temperature for up to 6 weeks."],
+["storage","Which vaccine is stored in the freezer?",["Influenza","Varicella (Varivax)","Tdap","Hepatitis B"],1,"Varivax is kept frozen. Most other routine vaccines are refrigerated."],
+["storage","What is the USP freezer temperature range?",["-25 to -10 degrees C","-5 to 0 degrees C","0 to 2 degrees C","2 to 8 degrees C"],0,"USP freezer storage is -25 to -10 degrees C (-13 to 14 degrees F)."],
+["storage","Where should an epinephrine auto-injector be stored?",["In the refrigerator","At room temperature, protected from light","In the freezer","In a hot car"],1,"Epinephrine auto-injectors stay at room temperature. Light and heat break down the drug."],
+["storage","When a wholesaler tote arrives, which items are put away first?",["OTC items","Refrigerated and frozen items","Controlled substances in the safe","Paperwork"],1,"Cold-chain items go into the refrigerator or freezer first to protect them."],
+["storage","Methotrexate tablets are hazardous. How should they be counted?",["On the same tray as other drugs","With a dedicated counting tray, cleaned after use","By hand without gloves","They are never counted"],1,"USP <800> calls for dedicated equipment and gloves when handling hazardous drugs."],
+["storage","Why are many drugs dispensed in amber vials?",["To look professional","To protect light-sensitive drugs","To mark controlled substances","To keep them cold"],1,"Amber plastic or glass filters light that can break down drugs."]
+];
+
+/* ---------- randomized calculation generators ---------- */
+const R=(a)=>a[Math.floor(Math.random()*a.length)];
+const ri=(lo,hi)=>lo+Math.floor(Math.random()*(hi-lo+1));
+function numOpts(ans,cands,unit){
+  const set=new Set([ans]);
+  for(const c of cands){if(set.size>=4)break;if(c>0&&Number.isFinite(c))set.add(Math.round(c*100)/100)}
+  let k=1;while(set.size<4){set.add(ans+k*(ans>20?10:2));k++}
+  const arr=[...set];return{opts:arr.map(v=>v.toLocaleString()+(unit?" "+unit:"")),a:0};
+}
+const FREQ=[[1,"daily","once"],[2,"BID","twice"],[3,"TID","three times"],[4,"QID","four times"]];
+const GEN=[
+ ()=>{const [f,code,word]=R(FREQ),t=R([1,1,2]),d=R([7,10,14,15,30,45,90]),q=d*f*t;
+  const o=numOpts(d,[d*2,Math.round(d/2),q/f,d+t*5],"days");
+  return["calc",`Rx: #${q} tablets. Sig: ${t} tab PO ${code}. What is the days' supply?`,o.opts,0,`${code} means ${word} a day, so the patient uses ${t} x ${f} = ${f*t} tablets per day. ${q} / ${f*t} = ${d} days.`]},
+ ()=>{const c=R([125,250,200,400]),m=R([1,2]),dose=c*m,ml=5*m,[f,code]=R(FREQ.slice(1)),d=R([5,7,10,14]),tot=ml*f*d;
+  const o=numOpts(tot,[ml*d,tot/2,ml*f*(d+3),tot+ml*f],"mL");
+  return["calc",`Rx: Suspension ${c} mg/5 mL. Give ${dose} mg PO ${code} x ${d} days. How many mL should be dispensed?`,o.opts,0,`${dose} mg needs ${ml} mL per dose. ${ml} mL x ${f} doses a day x ${d} days = ${tot} mL.`]},
+ ()=>{const kg=R([20,25,30,40,45,50,55,60,70,80,90]),lb=Math.round(kg*2.2),mk=R([10,15,20,25,30,40]),[n,freq]=R([[2,"every 12 hours"],[3,"every 8 hours"],[4,"every 6 hours"]]),day=mk*kg,r1=x=>Math.round(x*10)/10,dose=r1(day/n);
+  const o=numOpts(dose,[r1(mk*lb/n),day,r1(day*2.2/n),r1(day/(n===2?3:2))],"mg");
+  return["calc",`A patient weighs ${lb} lb. The order is ${mk} mg/kg/day divided ${freq}. How many mg should be given per dose?`,o.opts,0,`Step 1, convert: ${lb} lb / 2.2 = ${kg} kg. Step 2, daily dose: ${mk} mg x ${kg} kg = ${day.toLocaleString()} mg per day. Step 3, ${freq} means ${n} doses a day: ${day.toLocaleString()} / ${n} = ${dose.toLocaleString()} mg per dose. A common mistake is skipping the conversion and using pounds.`]},
+ ()=>{const kg=R([10,12,15,18,20,25,30]),lb=Math.round(kg*2.2),[drug,c,mk]=R([["acetaminophen",160,15],["ibuprofen",100,10]]),mg=mk*kg,r1=x=>Math.round(x*10)/10,ml=r1(mg*5/c);
+  const o=numOpts(ml,[r1(mk*lb*5/c),r1(mg/c),r1(ml*2),r1(ml/2)],"mL");
+  return["calc",`A child weighs ${lb} lb. The order is ${drug} ${mk} mg/kg per dose. The suspension is ${c} mg/5 mL. How many mL should be given per dose?`,o.opts,0,`Step 1: ${lb} lb / 2.2 = ${kg} kg. Step 2: ${mk} mg x ${kg} kg = ${mg} mg. Step 3: ${mg} mg x (5 mL / ${c} mg) = ${ml} mL.`]},
+ ()=>{const mk=R([5,10,15,20,25]),kg=R([10,20,30,40,50,60,70,80]),ans=mk*kg;/* kg given directly */
+  const o=numOpts(ans,[ans*2.2,ans/2,mk*kg/2.2],"mg");o.opts=o.opts.map(s=>s.replace(/(\.\d)\d+/,"$1"));
+  return["calc",`Dose ordered: ${mk} mg/kg. The patient weighs ${kg} kg. What dose should be given?`,o.opts,0,`${mk} mg x ${kg} kg = ${ans.toLocaleString()} mg.`]},
+ ()=>{const v=R([250,500,1000,1000,1500]),h=R([2,4,5,8,10,12].filter(x=>v%x===0)),r=v/h;
+  const o=numOpts(r,[r*2,v/(h*2),v/60,r+25],"mL/hr");
+  return["calc",`${v} mL of IV fluid is to run over ${h} hours. What is the flow rate?`,o.opts,0,`${v} mL / ${h} hr = ${r} mL/hr.`]},
+ ()=>{const u=R([10,12,15,20,25,30,40,50]),vial=R([3,10]),tot=vial*100,d=Math.floor(tot/u);
+  const o=numOpts(d,[d*2,Math.round(tot/u/2),tot/10,d+5],"days");
+  return["calc",`A ${vial} mL insulin ${vial===3?"pen":"vial"} contains 100 units/mL. The patient uses ${u} units daily. How many full days will it last?`,o.opts,0,`${vial} mL x 100 units = ${tot} units. ${tot} / ${u} = ${tot/u%1?(tot/u).toFixed(1)+", which rounds down to "+d:d} days.`]},
+ ()=>{const [c1,c2,v2]=R([[50,10,500],[70,35,500],[95,70,950],[20,5,400],[50,25,1000],[10,2,250],[70,20,700]]),v1=c2*v2/c1;
+  const o=numOpts(v1,[v2-v1,c1*v2/c2/10,v1*2,v1/2],"mL");
+  return["calc",`How many mL of a ${c1}% stock solution are needed to make ${v2} mL of a ${c2}% solution?`,o.opts,0,`Use C1V1 = C2V2. ${c1} x V1 = ${c2} x ${v2}, so V1 = ${v1} mL. Add diluent to ${v2} mL.`]},
+ ()=>{const [n,unit,ml]=R([[1,"tsp",5],[2,"tsp",5],[1,"tbsp",15],[1,"tsp",5]]),[f,code]=R(FREQ.slice(1)),d=R([5,7,10]),tot=n*ml*f*d;
+  const o=numOpts(tot,[tot/2,tot*3,n*ml*d,tot+ml*f],"mL");
+  return["calc",`Sig: ${n} ${unit} PO ${code} x ${d} days. How many mL should be dispensed?`,o.opts,0,`1 ${unit} = ${ml} mL. ${n*ml} mL x ${f} doses x ${d} days = ${tot} mL.`]},
+ ()=>{const pct=R([5,10,0.9,20]),v=R([250,500,1000]),g=pct*v/100;
+  const o=numOpts(g,[g*10,g/10,pct,g*2],"g");
+  return["calc",`How many grams of drug are in ${v} mL of a ${pct}% w/v solution?`,o.opts,0,`${pct}% w/v means ${pct} g per 100 mL. ${pct} x ${v/100} = ${g} g.`]},
+ ()=>{const cost=ri(8,60),mark=R([5,10,12,15,20]),sell=cost+mark;
+  const o=numOpts(mark,[sell,cost,mark*2,cost-mark>0?cost-mark:mark+3]);o.opts=o.opts.map(x=>"$"+Number(x.replace(/,/g,"")).toFixed(2));
+  return["calc",`A drug costs the pharmacy $${cost}.00 and sells for $${sell}.00. What is the gross profit?`,o.opts,0,`Gross profit = selling price - cost. $${sell} - $${cost} = $${mark}.00.`]}
+];
+function genCalc(n){return Array.from({length:n},()=>{const q=GEN[ri(0,GEN.length-1)]();return{q,i:"g"+ri(1000,9999)}})}
+
+/* ---------- drug name stems ---------- */
+// [stem, class, examples, article]
+const STEMS=[
+["-pril","ACE inhibitor",["lisinopril","enalapril","benazepril","ramipril","quinapril"],"an"],
+["-sartan","angiotensin receptor blocker (ARB)",["losartan","valsartan","irbesartan","olmesartan","telmisartan"],"an"],
+["-olol / -lol","beta blocker",["metoprolol","atenolol","propranolol","carvedilol","labetalol","bisoprolol","nebivolol"],"a"],
+["-dipine","calcium channel blocker",["amlodipine","nifedipine","felodipine","nicardipine"],"a"],
+["-statin","HMG-CoA reductase inhibitor (cholesterol)",["atorvastatin","simvastatin","rosuvastatin","pravastatin","lovastatin"],"a"],
+["-prazole","proton pump inhibitor (PPI)",["omeprazole","pantoprazole","esomeprazole","lansoprazole","rabeprazole"],"a"],
+["-tidine","H2 blocker",["famotidine","cimetidine","nizatidine"],"an"],
+["-azepam / -azolam","benzodiazepine",["lorazepam","diazepam","clonazepam","temazepam","alprazolam","midazolam"],"a"],
+["-cillin","penicillin antibiotic",["amoxicillin","ampicillin","dicloxacillin","nafcillin"],"a"],
+["cef- / ceph-","cephalosporin antibiotic",["cephalexin","cefdinir","ceftriaxone","cefuroxime","cefazolin"],"a"],
+["-thromycin","macrolide antibiotic",["azithromycin","clarithromycin","erythromycin"],"a"],
+["-floxacin","fluoroquinolone antibiotic",["ciprofloxacin","levofloxacin","moxifloxacin"],"a"],
+["-cycline","tetracycline antibiotic",["doxycycline","minocycline","demeclocycline"],"a"],
+["-conazole","antifungal",["fluconazole","ketoconazole","itraconazole","voriconazole"],"an"],
+["-cyclovir / -ciclovir","antiviral for herpes viruses",["acyclovir","valacyclovir","famciclovir"],"an"],
+["-tegravir","HIV integrase inhibitor",["dolutegravir","bictegravir","raltegravir","cabotegravir"],"an"],
+["gli- / gly-","sulfonylurea (diabetes)",["glipizide","glyburide","glimepiride"],"a"],
+["-gliptin","DPP-4 inhibitor (diabetes)",["sitagliptin","linagliptin","saxagliptin","alogliptin"],"a"],
+["-gliflozin","SGLT2 inhibitor (diabetes)",["empagliflozin","dapagliflozin","canagliflozin"],"an"],
+["-glutide","GLP-1 agonist",["semaglutide","liraglutide","dulaglutide"],"a"],
+["-triptan","serotonin 5-HT1 agonist (migraine)",["sumatriptan","rizatriptan","zolmitriptan","eletriptan"],"a"],
+["-setron","antiemetic (nausea)",["ondansetron","granisetron","palonosetron"],"an"],
+["-lukast","leukotriene receptor antagonist",["montelukast","zafirlukast"],"a"],
+["-terol","beta-2 agonist bronchodilator",["albuterol","salmeterol","formoterol","levalbuterol"],"a"],
+["-sone / -olone","corticosteroid",["prednisone","hydrocortisone","fluticasone","mometasone","methylprednisolone","prednisolone"],"a"],
+["-parin","heparin-type anticoagulant",["enoxaparin","dalteparin","tinzaparin"],"a"],
+["-xaban","factor Xa inhibitor (anticoagulant)",["apixaban","rivaroxaban","edoxaban"],"a"],
+["-dronate","bisphosphonate (bone loss)",["alendronate","risedronate","ibandronate"],"a"],
+["-triptyline","tricyclic antidepressant",["amitriptyline","nortriptyline"],"a"],
+["-afil","PDE-5 inhibitor",["sildenafil","tadalafil","vardenafil"],"a"],
+["-osin","alpha-1 blocker",["tamsulosin","doxazosin","terazosin","prazosin"],"an"],
+["-thiazide","thiazide diuretic",["hydrochlorothiazide","chlorothiazide"],"a"],
+["-semide / -etanide","loop diuretic",["furosemide","torsemide","bumetanide"],"a"],
+["-profen","NSAID",["ibuprofen","ketoprofen","flurbiprofen"],"an"],
+["-caine","local anesthetic",["lidocaine","benzocaine","bupivacaine"],"a"],
+["-mab","monoclonal antibody",["adalimumab","pembrolizumab","trastuzumab","denosumab"],"a"],
+["-tinib","kinase inhibitor (cancer)",["imatinib","erlotinib","dasatinib"],"a"],
+["-barbital","barbiturate",["phenobarbital","butalbital"],"a"]
+];
+const RHYME={
+"-pril":"If it ends in -pril, it's an ACE pill.",
+"-thromycin":"-Thromycin means a macrolide's in.",
+"-gliptin":"-Gliptin keeps the sugar from slippin'.",
+"-tinib":"-Tinib, the cancer kinase gets snipped.",
+"-barbital":"-Barbital sedates them all.",
+"-sartan":"-Sartan's the ARB, cough-free as can be.",
+"-olol / -lol":"-Lol slows the beat, so the heart takes a seat.",
+"-dipine":"-Dipine opens the line, and the pressure comes down fine.",
+"-statin":"-Statin's in charge when cholesterol's large.",
+"-prazole":"-Prazole cools the acid pool.",
+"-tidine":"-Tidine is H2's routine.",
+"-azepam / -azolam":"-Pam and -lam, calm as a clam.",
+"-cillin":"-Cillin's penicillin, for bugs that are illin'.",
+"cef- / ceph-":"Cef up front means a cephalosporin hunt.",
+"-floxacin":"-Floxacin's in? Watch the tendons and skin.",
+"-cycline":"-Cycline at mealtime? Skip the milk this time.",
+"-conazole":"-Conazole, fungus is the goal.",
+"-cyclovir / -ciclovir":"-Cyclovir, cold sores disappear.",
+"-tegravir":"-Tegravir jams HIV's integrase gear.",
+"gli- / gly-":"Gli or gly, the sugar won't stay high.",
+"-gliflozin":"-Gliflozin: the sugar's out with the pee you're losin'.",
+"-glutide":"-Glutide, GLP-1 on your side.",
+"-triptan":"-Triptan, migraine's on the run again.",
+"-setron":"-Setron, the nausea's gone.",
+"-lukast":"-Lukast puts asthma in the past.",
+"-terol":"-Terol opens the airway barrel.",
+"-sone / -olone":"-Sone and -olone, steroids on their own.",
+"-parin":"-Parin thins the flow, so the clots don't grow.",
+"-xaban":"-Xaban puts the clots under a ban.",
+"-dronate":"-Dronate builds bone: sit up, plain water alone.",
+"-afil":"-Afil with nitro? Pressure drops too low.",
+"-osin":"-Osin helps the flow, so stand up slow.",
+"-thiazide":"-Thiazide sends water outside.",
+"-semide / -etanide":"-Semide or -etanide, the loop lets water slide.",
+"-profen":"-Profen: pain and swelling broken.",
+"-caine":"-Caine numbs the pain.",
+"-mab":"-Mab, a monoclonal grab.",
+"-triptyline":"-Triptyline, a tricyclic in line."
+};
+const cap=x=>x[0].toUpperCase()+x.slice(1);
+const GROUP={
+ cardio:["-pril","-sartan","-olol / -lol","-dipine","-statin","-thiazide","-semide / -etanide","-parin","-xaban"],
+ gi:["-prazole","-tidine","-setron"],
+ cns:["-azepam / -azolam","-triptan","-triptyline","-barbital","-caine","-profen"],
+ infect:["-cillin","cef- / ceph-","-thromycin","-floxacin","-cycline","-conazole","-cyclovir / -ciclovir","-tegravir"],
+ dm:["gli- / gly-","-gliptin","-gliflozin","-glutide"],
+ resp:["-lukast","-terol","-sone / -olone"],
+ other:["-dronate","-mab","-tinib","-afil","-osin"]
+};
+const groupOf=k=>Object.keys(GROUP).find(g=>GROUP[g].includes(k));
+const BRAND={lisinopril:"Zestril",enalapril:"Vasotec",benazepril:"Lotensin",ramipril:"Altace",losartan:"Cozaar",valsartan:"Diovan",olmesartan:"Benicar",irbesartan:"Avapro",
+ metoprolol:"Lopressor",atenolol:"Tenormin",propranolol:"Inderal",carvedilol:"Coreg",amlodipine:"Norvasc",nifedipine:"Procardia",atorvastatin:"Lipitor",simvastatin:"Zocor",
+ rosuvastatin:"Crestor",pravastatin:"Pravachol",hydrochlorothiazide:"Microzide",furosemide:"Lasix",bumetanide:"Bumex",enoxaparin:"Lovenox",apixaban:"Eliquis",rivaroxaban:"Xarelto",
+ omeprazole:"Prilosec",pantoprazole:"Protonix",esomeprazole:"Nexium",lansoprazole:"Prevacid",famotidine:"Pepcid",cimetidine:"Tagamet",ondansetron:"Zofran",
+ lorazepam:"Ativan",diazepam:"Valium",clonazepam:"Klonopin",alprazolam:"Xanax",temazepam:"Restoril",sumatriptan:"Imitrex",rizatriptan:"Maxalt",amitriptyline:"Elavil",
+ nortriptyline:"Pamelor",lidocaine:"Xylocaine",ibuprofen:"Motrin",amoxicillin:"Amoxil",cephalexin:"Keflex",cefdinir:"Omnicef",ceftriaxone:"Rocephin",azithromycin:"Zithromax",
+ clarithromycin:"Biaxin",ciprofloxacin:"Cipro",levofloxacin:"Levaquin",doxycycline:"Vibramycin",minocycline:"Minocin",fluconazole:"Diflucan",acyclovir:"Zovirax",
+ valacyclovir:"Valtrex",dolutegravir:"Tivicay",raltegravir:"Isentress",glipizide:"Glucotrol",glimepiride:"Amaryl",sitagliptin:"Januvia",linagliptin:"Tradjenta",
+ empagliflozin:"Jardiance",dapagliflozin:"Farxiga",canagliflozin:"Invokana",semaglutide:"Ozempic",liraglutide:"Victoza",dulaglutide:"Trulicity",montelukast:"Singulair",
+ salmeterol:"Serevent",fluticasone:"Flonase",mometasone:"Nasonex",methylprednisolone:"Medrol",alendronate:"Fosamax",risedronate:"Actonel",adalimumab:"Humira",
+ pembrolizumab:"Keytruda",imatinib:"Gleevec",sildenafil:"Viagra",tadalafil:"Cialis",tamsulosin:"Flomax",doxazosin:"Cardura"};
+// look-alike trap drugs: [drug, what it really is]
+const TRAP={"-statin":[["nystatin","an antifungal"]],"-prazole":[["aripiprazole","an antipsychotic"]],"-conazole":[["metronidazole","an antibiotic"]],
+ "-olol / -lol":[["tramadol","an opioid pain reliever"]],"-thromycin":[["clindamycin","a lincosamide antibiotic"],["vancomycin","a glycopeptide antibiotic"]],
+ "-tidine":[["loratadine","an H1 antihistamine for allergies"]],"-azepam / -azolam":[["buspirone","a non-benzodiazepine anxiety medicine"]],
+ "-afil":[["finasteride","a 5-alpha reductase inhibitor"]],"-terol":[["atenolol","a beta blocker"]]};
+function distractors(s){const g=groupOf(s[0]);const same=shuffle(STEMS.filter(x=>x!==s&&groupOf(x[0])===g));const rest=shuffle(STEMS.filter(x=>x!==s&&groupOf(x[0])!==g));return same.concat(rest).slice(0,3)}
+const rh=s=>RHYME[s[0]]?' Rhyme: '+RHYME[s[0]]:'';
+function genStemRaw(mode){
+  const s=R(STEMS),others=distractors(s),more=d=>s[2].filter(x=>x!==d).slice(0,3).join(", ");
+  const branded=s[2].filter(d=>BRAND[d]);
+  const roll=mode==="game"?0:Math.random();
+  if(roll<.35){const drug=R(s[2]);
+    return["stems",`Based on its name, ${drug} most likely belongs to which drug class?`,[s[1],...others.map(x=>x[1])].map(cap),0,`${cap(drug)} has the ${s[0]} stem, which marks ${s[3]} ${s[1]}. Others in this class: ${more(drug)}.${rh(s)}`];}
+  if(roll<.65&&branded.length){const drug=R(branded),b=BRAND[drug];
+    return["stems",`${b} belongs to which drug class?`,[s[1],...others.map(x=>x[1])].map(cap),0,`${b} is ${drug}. The ${s[0]} stem marks ${s[3]} ${s[1]}. Know the generic and the stem gives you the class.${rh(s)}`];}
+  const drug=R(s[2]);let opts=others.map(x=>R(x[2])),trapNote="";
+  if(TRAP[s[0]]){const [t,what]=R(TRAP[s[0]]);opts[0]=t;trapNote=` Watch out: ${t} looks like it fits, but it is ${what}.`;}
+  return["stems",`Which drug is most likely ${s[3]} ${s[1]}?`,[drug,...opts].map(cap),0,`The ${s[0]} stem marks ${s[3]} ${s[1]}, so ${drug} fits.${trapNote}${rh(s)}`];
+}
+function genStem(mode){
+  for(let k=0;k<30;k++){const q=genStemRaw(mode),low=q[2].map(x=>x.toLowerCase());
+    if(new Set(low).size!==4)continue;
+    if(q[1].startsWith("Based")){const d=q[1].match(/its name, (\S+) most/)[1].toLowerCase();if(low[0].split(/[ ()]+/).some(w=>w.length>4&&d.includes(w)))continue}
+    return q}
+  return genStemRaw(mode);
+}
+function genStems(n){return Array.from({length:n},()=>({q:genStem(),i:"g"+ri(1000,9999)}))}
+const GENERATED=["calc","stems"];
+
+/* ---------- practice flow ---------- */
+const $=id=>document.getElementById(id);
+const COUNTS=[10,25,50,"All"];
+let sel=new Set(Object.keys(DOMAINS)),count=25,session=[],idx=0,score=0,answered=false;
+try{const s=JSON.parse(localStorage.getItem("ptcb-prefs2")||"null");if(s){sel=new Set(s.sel.filter(k=>DOMAINS[k]));if(!sel.size)sel=new Set(Object.keys(DOMAINS));count=s.count}}catch(e){}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const calcGenCount=()=>sel.has("calc")?GEN.length*2:0;
+function pool(){return BANK.map((q,i)=>({q,i})).filter(x=>sel.has(x.q[0]))}
+function savePrefs(){try{localStorage.setItem("ptcb-prefs2",JSON.stringify({sel:[...sel],count}))}catch(e){}}
+
+function renderSetup(){
+  $("domChips").innerHTML=Object.entries(DOMAINS).map(([k,d])=>{const n=BANK.filter(q=>q[0]===k).length+(k==="calc"?"+":"");return`<button class="chip${d.isNew?" new":""}" data-d="${k}" aria-pressed="${sel.has(k)}">${d.name}<span class="n">${GENERATED.includes(k)?"∞":n}</span></button>`}).join("");
+  $("countChips").innerHTML=COUNTS.map(c=>`<button class="chip" data-c="${c}" aria-pressed="${count==c}">${c}</button>`).join("");
+  const n=pool().length;
+  const gen=GENERATED.some(k=>sel.has(k));
+  $("poolNote").textContent=n||gen?(gen?`${n} questions plus new generated questions every session`:`${n} questions in your topics`):"Choose at least one topic";
+  $("startBtn").disabled=!(n||gen);
+}
+$("domChips").onclick=e=>{const b=e.target.closest("[data-d]");if(!b)return;const k=b.dataset.d;sel.has(k)?sel.delete(k):sel.add(k);savePrefs();renderSetup()};
+$("countChips").onclick=e=>{const b=e.target.closest("[data-c]");if(!b)return;count=b.dataset.c==="All"?"All":+b.dataset.c;savePrefs();renderSetup()};
+$("lawFocus").onclick=()=>{sel=new Set(["law","dscsa"]);savePrefs();renderSetup()};
+
+let sessionLabel="Practice";
+function start(list,opts={}){
+  stopQTimer();
+  session=list.map(({q,i})=>({q,i,order:shuffle(q[2].map((_,n)=>n)),pick:null}));
+  sessionLabel=opts.label||"Custom practice";
+  idx=0;score=0;show("quiz");renderQ();
+  if(opts.minutes){
+    qEnd=Date.now()+opts.minutes*60000;
+    const tick=()=>{const left=qEnd-Date.now();$("qScore").textContent=`Time left ${fmt(left)}`;if(left<=0){stopQTimer();results()}};
+    tick();qTimer=setInterval(tick,1000);
+  }
+}
+function customList(){let p=pool().concat(genCalc(calcGenCount())).concat(sel.has("stems")?genStems(20):[]);p=shuffle(p);if(count!=="All")p=p.slice(0,count);return p}
+$("startBtn").onclick=()=>start(customList());
+
+const SECTIONS=["setup","quiz","results","learnMenu","learnArea","simMenu","simArea","gameMenu","gameArea"];
+function show(id){if(id!=="quiz")stopQTimer();SECTIONS.forEach(s=>$(s).hidden=s!==id);window.scrollTo({top:0})}
+
+/* ---------- quick quizzes ---------- */
+const ALL=Object.keys(DOMAINS);
+const PRESETS=[
+ {id:"quick",tag:"10 questions",title:"Quick 10",desc:"A mixed set from every topic.",doms:ALL,n:10},
+ {id:"law",tag:"20 questions",title:"Federal Law Drill",desc:"DEA forms, schedules, refills, recalls and REMS.",doms:["law"],n:20},
+ {id:"dscsa",tag:"New in 2026",title:"DSCSA Drill",desc:"Product tracing, suspect product steps and record rules.",doms:["dscsa"],n:"All"},
+ {id:"int",tag:"14 questions",title:"Drug Interactions",desc:"Warfarin, nitrates, serotonin, potassium and more.",doms:["interact"],n:"All"},
+ {id:"stor",tag:"14 questions",title:"Storage & Handling",desc:"Nitroglycerin, insulin, suspensions, vaccines, cold chain.",doms:["storage"],n:"All"},
+ {id:"stems",tag:"New drugs every time",title:"Drug Name Stems",desc:"Spot the class from the name: -pril, -olol, -statin and more.",doms:["stems"],n:20},
+ {id:"calc",tag:"New numbers every time",title:"Math Workout",desc:"Days' supply, dosing, IV rates, dilutions and conversions.",doms:["calc"],n:15},
+ {id:"mock",tag:"90 questions · 110 min",title:"Mock Exam",desc:"Timed and weighted like the 2026 exam outline.",mock:true}
+];
+$("presets").innerHTML=PRESETS.map(p=>`<button class="gcard" data-p="${p.id}"><span class="tag">${p.tag}</span><h3>${p.title}</h3><p>${p.desc}</p></button>`).join("");
+const pickN=(arr,n)=>shuffle(arr).slice(0,n);
+const fromDoms=ds=>BANK.map((q,i)=>({q,i})).filter(x=>ds.includes(x.q[0]));
+$("presets").onclick=e=>{
+  const b=e.target.closest("[data-p]");if(!b)return;const p=PRESETS.find(x=>x.id===b.dataset.p);
+  if(p.mock){
+    const list=[...pickN(fromDoms(["med","interact","storage"]),29),...pickN(fromDoms(["law","dscsa"]),18),...pickN(fromDoms(["safe"]),16),...pickN(fromDoms(["order"]),17),...genCalc(6),...genStems(4)];
+    start(shuffle(list),{minutes:110,label:"Mock Exam"});return;
+  }
+  let list=fromDoms(p.doms);if(p.doms.includes("calc"))list=list.concat(genCalc(p.doms.length===1?p.n:GEN.length*2));
+  if(p.doms.includes("stems"))list=list.concat(genStems(p.n==="All"?20:p.n));
+  list=shuffle(list);if(p.n!=="All")list=list.slice(0,p.n);start(list,{label:p.title});
+};
+
+/* ---------- exam timer ---------- */
+let qTimer=null,qEnd=0;
+function stopQTimer(){if(qTimer){clearInterval(qTimer);qTimer=null}}
+function fmt(ms){const s=Math.max(0,Math.round(ms/1000));return`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
+
+function renderQ(){
+  const s=session[idx],[d,text,opts]=s.q;answered=false;
+  $("qPos").textContent=`Question ${idx+1} of ${session.length}`;
+  if(!qTimer)$("qScore").textContent=`${score} correct`;
+  $("railFill").style.width=`${idx/session.length*100}%`;
+  $("qDom").textContent=DOMAINS[d].name;
+  $("qRx").textContent="Rx #"+(typeof s.i==="number"?String(100000+s.i*7).slice(-6):"G-"+s.i.slice(1));
+  $("qText").textContent=text;
+  $("qOpts").innerHTML=s.order.map((o,n)=>`<button class="opt" data-o="${o}"><span class="k">${n+1}</span><span>${opts[o]}</span></button>`).join("");
+  $("qWhy").innerHTML="";
+  $("nextBtn").disabled=true;
+  $("nextBtn").textContent=idx===session.length-1?"See results":"Next question";
+}
+function answer(o){
+  if(answered)return;answered=true;
+  const s=session[idx],correct=s.q[3];s.pick=o;const ok=o===correct;if(ok)score++;
+  [...$("qOpts").children].forEach(b=>{const v=+b.dataset.o;b.disabled=true;if(v===correct)b.classList.add("right");else if(v===o)b.classList.add("wrong")});
+  $("qWhy").innerHTML=`<p class="why ${ok?"":"miss"}"><strong>${ok?"Correct.":"Not quite. The answer is: "+s.q[2][correct]}</strong>${s.q[4]}</p>`;
+  if(!qTimer)$("qScore").textContent=`${score} correct`;$("nextBtn").disabled=false;$("nextBtn").focus();
+}
+$("qOpts").onclick=e=>{const b=e.target.closest(".opt");if(b)answer(+b.dataset.o)};
+$("nextBtn").onclick=()=>{if(idx<session.length-1){idx++;renderQ()}else results()};
+$("quitBtn").onclick=()=>{session=session.slice(0,idx+(answered?1:0));if(session.length)results();else{show("setup");renderSetup()}};
+document.addEventListener("keydown",e=>{
+  if($("quiz").hidden)return;const n=+e.key;
+  if(n>=1&&n<=4&&!answered){const b=$("qOpts").children[n-1];if(b)answer(+b.dataset.o)}
+  else if(e.key==="Enter"&&answered&&document.activeElement!==$("nextBtn"))$("nextBtn").click();
+});
+function results(){
+  stopQTimer();
+  const total=session.length,right=session.filter(s=>s.pick===s.q[3]).length;
+  $("rScore").textContent=Math.round(right/total*100)+"%";
+  $("rDetail").textContent=`${right} of ${total} correct`;
+  const by={};session.forEach(s=>{const d=s.q[0];by[d]=by[d]||[0,0];by[d][1]++;if(s.pick===s.q[3])by[d][0]++});
+  $("rBars").innerHTML=Object.entries(by).map(([d,[r,t]])=>`<div class="bar"><span>${DOMAINS[d].name}</span><span class="t"><i style="width:${r/t*100}%"></i></span><span class="v">${r}/${t}</span></div>`).join("");
+  const missed=session.filter(s=>s.pick!==s.q[3]);
+  $("missLabel").hidden=!missed.length;$("retryBtn").hidden=!missed.length;
+  $("rMissed").innerHTML=missed.length?missed.map(s=>`<div class="mi"><span class="qq">${s.q[1]}</span><span class="ans">Answer: ${s.q[2][s.q[3]]}</span>${s.pick!=null?`<span class="yours">You chose: ${s.q[2][s.pick]}</span>`:""}<span class="ex">${s.q[4]}</span></div>`).join(""):`<p class="note">Nothing missed. Try a bigger set or a different topic.</p>`;
+  $("retryBtn").onclick=()=>start(shuffle(missed.map(s=>({q:s.q,i:s.i}))));
+  show("results");
+}
+$("againBtn").onclick=()=>{show("setup");renderSetup()};
+
+/* ---------- games ---------- */
+const SCHED={
+ "I":["Heroin","LSD","MDMA (ecstasy)","Psilocybin"],
+ "II":["Oxycodone","Fentanyl","Morphine","Methylphenidate (Ritalin)","Amphetamine salts (Adderall)","Hydrocodone/APAP (Norco)","Hydromorphone (Dilaudid)","Methadone","Oxycodone/APAP (Percocet)","Lisdexamfetamine (Vyvanse)"],
+ "III":["Buprenorphine","Ketamine","Testosterone","Acetaminophen/codeine (Tylenol #3)","Buprenorphine/naloxone (Suboxone)","Dronabinol (Marinol)","Anabolic steroids"],
+ "IV":["Alprazolam (Xanax)","Lorazepam (Ativan)","Diazepam (Valium)","Zolpidem (Ambien)","Tramadol (Ultram)","Carisoprodol (Soma)","Phenobarbital","Clonazepam (Klonopin)","Modafinil (Provigil)"],
+ "V":["Pregabalin (Lyrica)","Lacosamide (Vimpat)","Diphenoxylate/atropine (Lomotil)","Codeine cough syrup (low dose)","Brivaracetam (Briviact)"]
+};
+const PAIRS=[
+ ["DEA 222","Order Schedule II drugs"],["DEA 106","Report theft or loss"],["DEA 41","Record destruction"],["DEA 224","Pharmacy registration"],
+ ["CSOS","Electronic C-II ordering"],["FDA 3911","Illegitimate product notice"],["6 years","DSCSA record retention"],["24 hours","Notify FDA of illegitimate product"],
+ ["2 years","Federal controlled substance records"],["3.6 g","Daily pseudoephedrine limit"],["9 g","30-day pseudoephedrine limit"],["iPLEDGE","Isotretinoin REMS"],
+ ["Class I","Recall that may cause serious harm or death"],["MedWatch","FDA adverse event reporting"],["VAERS","Vaccine adverse events"],["USP <800>","Hazardous drug handling"],
+ ["5 refills / 6 months","C-III to C-V refill limit"],["7 days","Written follow-up for emergency C-II"],["3 years","DEA registration renewal"],["TS","Seller's DSCSA attestation"]
+];
+const TF=[
+ ["Schedule II prescriptions can be refilled once.",false,"C-II prescriptions cannot be refilled."],
+ ["DSCSA transaction records must be kept for 6 years.",true,""],
+ ["The FDA must be notified within 24 hours after a product is found illegitimate.",true,""],
+ ["Class III recalls are the most serious.",false,"Class I is the most serious."],
+ ["DEA Form 106 reports theft or significant loss.",true,""],
+ ["DEA Form 41 is used to order C-II drugs.",false,"Form 41 records destruction. Form 222 orders C-II."],
+ ["Pseudoephedrine buyers must show photo ID.",true,""],
+ ["C-III to C-V prescriptions may be refilled up to 5 times within 6 months.",true,""],
+ ["Hydrocodone/acetaminophen is Schedule III.",false,"It moved to Schedule II in 2014."],
+ ["VAERS collects reports of vaccine side effects.",true,""],
+ ["Tramadol is Schedule IV.",true,""],
+ ["Pregabalin is Schedule II.",false,"Pregabalin is Schedule V."],
+ ["A DSCSA product identifier includes the NDC, serial number, lot number and expiration date.",true,""],
+ ["Pharmacies may buy drugs from any seller, licensed or not.",false,"DSCSA requires authorized trading partners."],
+ ["A suspect product should be quarantined while it is investigated.",true,""],
+ ["Isotretinoin is dispensed under the iPLEDGE program.",true,""],
+ ["A pharmacy's DEA registration is renewed every 3 years.",true,""],
+ ["The federal controlled substance inventory is taken every 2 years.",true,""],
+ ["An emergency oral C-II must be followed by a written prescription within 7 days.",true,""],
+ ["Hazardous waste pharmaceuticals may be flushed down the drain.",false,"EPA Subpart P bans sewering."],
+ ["Buprenorphine is Schedule III.",true,""],
+ ["Alprazolam is Schedule II.",false,"Alprazolam is Schedule IV."],
+ ["Between pharmacies without a shared database, a C-III to C-V refill can be transferred one time.",true,""],
+ ["USP <797> covers hazardous drug handling.",false,"<797> is sterile compounding. <800> is hazardous drugs."],
+ ["Medication Guides must be given with NSAIDs.",true,""],
+ ["Patient names are part of DSCSA transaction information.",false,"TI covers the product and the sale between trading partners."],
+ ["Form FDA 3911 is used for illegitimate product notifications.",true,""],
+ ["Federal controlled substance records must be kept for 5 years.",false,"Federal minimum is 2 years. DSCSA records are 6 years."],
+ ["The retail 30-day pseudoephedrine limit is 9 g.",true,""],
+ ["Schedule V drugs have the highest abuse potential.",false,"Schedule I and II have the highest. Schedule V has the lowest."],
+ ["Oxycodone is Schedule II.",true,""],
+ ["Lomotil (diphenoxylate/atropine) is Schedule V.",true,""]
+];
+let timer=null;
+function stopTimer(){if(timer){clearInterval(timer);timer=null}}
+function bestKey(g){return"ptcb-best-"+g}
+function getBest(g){try{return+localStorage.getItem(bestKey(g))||0}catch(e){return 0}}
+function setBest(g,v,lowerBetter){try{const b=getBest(g);if(!b||(lowerBetter?v<b:v>b)){localStorage.setItem(bestKey(g),v);return true}}catch(e){}return false}
+
+$("gameMenu").onclick=e=>{const b=e.target.closest("[data-g]");if(b)startGame(b.dataset.g)};
+$("gBack").onclick=()=>{stopTimer();show("gameMenu")};
+
+function startGame(g){stopTimer();show("gameArea");({sched:schedGame,match:matchGame,tf:tfGame,stem:stemGame})[g]()}
+
+function countdown(sec,onTick,onEnd){
+  let left=sec;onTick(left);
+  timer=setInterval(()=>{left--;onTick(left);if(left<=0){stopTimer();onEnd()}},1000);
+}
+function endScreen(title,lines,again,g,val,lowerBetter){
+  const rec=setBest(g,val,lowerBetter);
+  $("gBody").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px"><div class="score">${title}</div>${rec?`<p style="color:var(--gold);font-weight:700">New personal best on this device.</p>`:`<p class="note">Best on this device: ${getBest(g)}</p>`}${lines}<div><button class="btn" id="gAgain">Play again</button></div></div>`;
+  $("gAgain").onclick=again;
+}
+
+function schedGame(){
+  $("gTitle").textContent="Schedule Sort";
+  const deck=shuffle(Object.entries(SCHED).flatMap(([s,ds])=>ds.map(d=>[d,s])));
+  let i=0,pts=0,streak=0,misses=[];
+  $("gBody").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+   <div class="hud"><span>Score <b id="gs">0</b></span><span>Streak <b id="gk">0</b></span><span>Time <b id="gt">60</b>s</span></div>
+   <div class="timer"><i id="gbar" style="width:100%"></i></div>
+   <div class="prompt" id="gp"></div>
+   <div class="sched">${["I","II","III","IV","V"].map(s=>`<button class="sbtn" data-s="${s}">C-${s}</button>`).join("")}</div>
+   <p class="feedback" id="gf">Tap the schedule for each drug.</p></div>`;
+  const next=()=>{if(i>=deck.length){i=0;deck.sort(()=>Math.random()-.5)}$("gp").className="prompt";$("gp").textContent=deck[i][0]};
+  next();
+  $("gBody").querySelector(".sched").onclick=e=>{
+    const b=e.target.closest("[data-s]");if(!b||!timer)return;
+    const [drug,s]=deck[i];
+    if(b.dataset.s===s){pts++;streak++;$("gp").className="prompt ok";$("gf").textContent=`Yes, ${drug} is C-${s}.`}
+    else{streak=0;misses.push([drug,s]);$("gp").className="prompt no";$("gf").textContent=`${drug} is C-${s}.`}
+    $("gs").textContent=pts;$("gk").textContent=streak;i++;setTimeout(next,450);
+  };
+  countdown(60,l=>{$("gt").textContent=l;$("gbar").style.width=l/60*100+"%"},()=>{
+    const uniq=[...new Map(misses.map(m=>[m[0],m])).values()];
+    endScreen(`${pts} correct`,uniq.length?`<div class="missed">${uniq.map(([d,s])=>`<div class="mi"><span class="qq">${d}</span><span class="ans">Schedule ${s}</span></div>`).join("")}</div>`:`<p class="note">No misses. Excellent.</p>`,schedGame,"sched",pts);
+  });
+}
+
+function matchGame(){
+  $("gTitle").textContent="Law Match";
+  const pick=shuffle(PAIRS).slice(0,6);
+  const tiles=shuffle(pick.flatMap((p,n)=>[{t:p[0],n,term:true},{t:p[1],n}]));
+  let first=null,moves=0,done=0;
+  $("gBody").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+   <div class="hud"><span>Moves <b id="gm">0</b></span><span>Pairs <b id="gpairs">0</b>/6</span></div>
+   <div class="tiles">${tiles.map((x,k)=>`<button class="tile${x.term?" term":""}" data-k="${k}">${x.t}</button>`).join("")}</div>
+   <p class="feedback" id="gf">Tap a term, then tap what it means.</p></div>`;
+  $("gBody").querySelector(".tiles").onclick=e=>{
+    const b=e.target.closest(".tile");if(!b||b.classList.contains("done"))return;
+    const k=+b.dataset.k;
+    if(first===null){first=k;b.classList.add("sel");return}
+    if(first===k){b.classList.remove("sel");first=null;return}
+    moves++;$("gm").textContent=moves;
+    const a=$("gBody").querySelector(`[data-k="${first}"]`);
+    if(tiles[first].n===tiles[k].n){a.classList.remove("sel");a.classList.add("done");b.classList.add("done");done++;$("gpairs").textContent=done;$("gf").textContent=`${pick[tiles[k].n][0]}: ${pick[tiles[k].n][1]}`;
+      if(done===6)setTimeout(()=>endScreen(`${moves} moves`,`<p class="note">A perfect game is 6 moves. Each round deals 6 new pairs from a set of ${PAIRS.length}.</p>`,matchGame,"match",moves,true),700)}
+    else{a.classList.remove("sel");[a,b].forEach(x=>{x.classList.add("shake");setTimeout(()=>x.classList.remove("shake"),300)});$("gf").textContent="Not a match. Try again."}
+    first=null;
+  };
+}
+
+function tfGame(){
+  $("gTitle").textContent="Lightning Round";
+  const deck=shuffle(TF);let i=0,pts=0,streak=0,best=0,misses=[];
+  $("gBody").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+   <div class="hud"><span>Score <b id="gs">0</b></span><span>Streak <b id="gk">0</b></span><span>Time <b id="gt">60</b>s</span></div>
+   <div class="timer"><i id="gbar" style="width:100%"></i></div>
+   <div class="prompt" id="gp" style="font-size:clamp(19px,4.5vw,24px)"></div>
+   <div class="tf"><button class="sbtn" data-v="1">True</button><button class="sbtn" data-v="0">False</button></div>
+   <p class="feedback" id="gf">Answer as many as you can.</p></div>`;
+  const next=()=>{if(i>=deck.length){i=0;deck.sort(()=>Math.random()-.5)}$("gp").className="prompt";$("gp").style.fontSize="clamp(19px,4.5vw,24px)";$("gp").textContent=deck[i][0]};
+  next();
+  $("gBody").querySelector(".tf").onclick=e=>{
+    const b=e.target.closest("[data-v]");if(!b||!timer)return;
+    const [s,ans,fix]=deck[i];
+    if((b.dataset.v==="1")===ans){pts++;streak++;best=Math.max(best,streak);$("gp").className="prompt ok";$("gf").textContent=ans?"True.":"False. "+fix}
+    else{streak=0;misses.push(deck[i]);$("gp").className="prompt no";$("gf").textContent=ans?"That one is true.":"False. "+fix}
+    $("gs").textContent=pts;$("gk").textContent=streak;i++;setTimeout(next,ans?500:1300);
+  };
+  countdown(60,l=>{$("gt").textContent=l;$("gbar").style.width=l/60*100+"%"},()=>{
+    endScreen(`${pts} correct`,`<p class="note">Longest streak: ${best}</p>${misses.length?`<div class="missed">${misses.map(([s,a,f])=>`<div class="mi"><span class="qq">${s}</span><span class="ans">${a?"True":"False"}${f?". "+f:""}</span></div>`).join("")}</div>`:""}`,tfGame,"tf",pts);
+  });
+}
+
+function stemGame(){
+  $("gTitle").textContent="Stem Sprint";
+  let cur=null,pts=0,streak=0,best=0,misses=[];
+  $("gBody").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">
+   <div class="hud"><span>Score <b id="gs">0</b></span><span>Streak <b id="gk">0</b></span><span>Time <b id="gt">60</b>s</span></div>
+   <div class="timer"><i id="gbar" style="width:100%"></i></div>
+   <div class="prompt" id="gp"></div>
+   <div class="tf" id="gopts"></div>
+   <p class="feedback" id="gf">Pick the class that matches the stem.</p></div>`;
+  const next=()=>{cur=genStem("game");const order=shuffle([0,1,2,3]);
+    $("gp").className="prompt";$("gp").innerHTML=cap(cur[1].match(/its name, (\S+) most/)[1]);
+    $("gopts").innerHTML=order.map(o=>`<button class="sbtn stemb" data-o="${o}">${cur[2][o]}</button>`).join("")};
+  next();
+  $("gopts").onclick=e=>{
+    const b=e.target.closest("[data-o]");if(!b||!timer||b.disabled)return;
+    $("gopts").querySelectorAll("button").forEach(x=>x.disabled=true);
+    const ok=+b.dataset.o===0,drug=$("gp").textContent,st=STEMS.find(x=>cap(x[1])===cur[2][0]);
+    if(ok){pts++;streak++;best=Math.max(best,streak);$("gp").className="prompt ok";$("gf").textContent=RHYME[st[0]]||`Yes. ${st[0]} = ${st[1]}.`}
+    else{streak=0;misses.push([drug,st]);$("gp").className="prompt no";$("gf").textContent=`${drug}: ${st[0]} = ${st[1]}. ${RHYME[st[0]]||''}`}
+    $("gs").textContent=pts;$("gk").textContent=streak;setTimeout(next,ok?900:1800);
+  };
+  countdown(60,l=>{$("gt").textContent=l;$("gbar").style.width=l/60*100+"%"},()=>{
+    endScreen(`${pts} correct`,`<p class="note">Longest streak: ${best}</p>${misses.length?`<div class="missed">${misses.map(([d,st])=>`<div class="mi"><span class="qq">${d}</span><span class="ans">${st[0]} = ${cap(st[1])}</span>${RHYME[st[0]]?`<span class="ex"><i>${RHYME[st[0]]}</i></span>`:""}</div>`).join("")}</div>`:""}`,stemGame,"stem",pts);
+  });
+}
+
+/* ---------- sim lab ---------- */
+const CASES=[
+ {id:"c2",desc:"A hydrocodone prescription with problems to catch.",station:"Drop-off window",title:"The C-II prescription",
+  rx:["Patient: Maria Lopez","Hydrocodone/APAP 5/325 mg","Sig: 1 tab PO q6h prn pain","Disp: #20","Refills: 2","Dr. Lisa Moore · DEA AM3456781"],
+  steps:[
+   ["What DEA schedule is this drug?",["Schedule II","Schedule III","Schedule IV","Not controlled"],0,"Hydrocodone combination products have been Schedule II since 2014."],
+   ["The prescription lists 2 refills. What should happen?",["Fill it with 2 refills","The refills cannot be honored; alert the pharmacist","Change it to 2 refills of 10 tablets","Transfer the refills to another pharmacy"],1,"C-II prescriptions cannot be refilled. The pharmacist decides how to handle the original fill."],
+   ["Check the DEA number AM3456781 for Dr. Moore. Is it valid?",["Yes, the check digit is 1 and M matches Moore","No, the check digit should be 7","No, it needs 3 letters","No, the second letter must be A"],0,"3+5+7 = 15. (4+6+8) x 2 = 36. 15 + 36 = 51, so the check digit is 1. M matches Moore."],
+   ["What is the shortest days' supply if the patient takes the maximum dose?",["3 days","5 days","10 days","20 days"],1,"Every 6 hours is up to 4 tablets a day. 20 / 4 = 5 days."],
+   ["Which warning must appear on the label?",["Caution: Federal law prohibits the transfer of this drug to any person other than the patient for whom it was prescribed","Shake well before use","For external use only","Refrigerate"],0,"This federal transfer warning is required on C-II to C-IV labels."]
+  ]},
+ {id:"tote",desc:"Cold chain, a suspect bottle and DSCSA paperwork.",station:"Receiving",title:"Unpacking the wholesaler tote",
+  rx:["Wholesaler delivery, 9:05 AM","Tote 1 of 2: insulin glargine x 6, latanoprost x 4","Tote 2 of 2: atorvastatin, sertraline, metformin","Invoice and DSCSA documents attached"],
+  steps:[
+   ["What goes away first?",["Atorvastatin","The insulin and latanoprost, into the refrigerator","The invoice","The metformin"],1,"Cold-chain items go into the refrigerator first."],
+   ["One sertraline bottle has a torn seal and the label print looks different from your stock. What do you do?",["Put it on the shelf","Quarantine it, keep it separate and tell the pharmacist","Dispense it first so it goes fast","Throw it away"],1,"A suspect product is quarantined so it cannot be dispensed while it is investigated."],
+   ["The investigation finds the bottle is counterfeit. How soon must the FDA be notified?",["Within 24 hours","Within 7 days","Within 30 days","Only if a patient is harmed"],0,"Illegitimate product is reported to the FDA and trading partners within 24 hours, using Form FDA 3911."],
+   ["The metformin line has no transaction statement. What is correct?",["Accept it anyway","Do not accept ownership until the required documents are received","Return everything in the tote","Write your own statement"],1,"Pharmacies may not accept ownership without the required DSCSA transaction documents."],
+   ["How long must the pharmacy keep these DSCSA transaction records?",["1 year","2 years","6 years","10 years"],2,"DSCSA records are kept for 6 years."]
+  ]},
+ {id:"nitro",desc:"Storage, counseling referrals and a dangerous combination.",station:"Pickup counter",title:"Nitroglycerin pickup",
+  rx:["Patient: James Carter, 67","Nitroglycerin 0.4 mg SL tablets","Sig: 1 tab SL q5min prn chest pain, max 3","Also in will-call: sildenafil 50 mg (new prescriber)"],
+  steps:[
+   ["Mr. Carter asks to put his nitroglycerin in his weekly pill organizer. What is correct?",["That is fine","Keep it in the original amber glass bottle, tightly capped, and refer him to the pharmacist","Put it in a plastic bag","Add cotton to the bottle"],1,"Nitroglycerin loses potency with air, moisture, heat and light. It stays in its original glass container."],
+   ["What does 'SL' tell the patient?",["Swallow whole","Dissolve under the tongue","Take with food","Take slowly"],1,"SL means sublingual, under the tongue."],
+   ["You notice the new sildenafil prescription. What should you do?",["Bag them together","Flag it for the pharmacist before releasing either","Remove the sildenafil","Nothing, they are from different doctors"],1,"Nitrates with sildenafil can cause a dangerous drop in blood pressure. The pharmacist must review it."],
+   ["He keeps his medicine in the car. What storage advice fits?",["The car is fine","Room temperature, away from heat and moisture, in the original bottle","The refrigerator","The bathroom cabinet"],1,"Heat and humidity destroy nitroglycerin. Counseling details go through the pharmacist."]
+  ]},
+ {id:"dur",desc:"Five interaction and duplication alerts to triage.",station:"Data entry",title:"DUR alerts on the refill queue",
+  rx:["Five prescriptions are waiting for data entry.","Each one triggers a drug utilization review (DUR) alert.","Decide what the pharmacist needs to see."],
+  steps:[
+   ["Patient on warfarin is also buying aspirin 325 mg daily. Main risk?",["Bleeding","High blood sugar","Serotonin syndrome","No risk"],0,"Aspirin adds to warfarin's bleeding risk."],
+   ["Patient on sertraline has a new tramadol prescription. Main risk?",["Hyperkalemia","Serotonin syndrome and seizures","Low blood pressure","Bleeding"],1,"Both raise serotonin levels."],
+   ["Patient on lisinopril has a new potassium chloride prescription. Main risk?",["High potassium","Low potassium","Low blood sugar","Ulcers"],0,"ACE inhibitors already raise potassium."],
+   ["Patient has active omeprazole and a new pantoprazole prescription. What is this?",["Allergy","Therapeutic duplication","Drug-food interaction","Wrong route"],1,"Both are proton pump inhibitors."],
+   ["Who resolves these alerts?",["The technician overrides them","The pharmacist reviews each one","The insurance company","The patient"],1,"Technicians flag alerts. Pharmacists make clinical decisions."]
+  ]},
+ {id:"pse",desc:"Daily and 30-day limits, ID and logbook rules.",station:"Front counter",title:"The pseudoephedrine sale",
+  rx:["Each box contains 2.4 g pseudoephedrine (120 mg x 20).","A customer wants 2 boxes today.","Logbook shows 7.2 g bought in the last 30 days."],
+  steps:[
+   ["Can you sell 2 boxes (4.8 g) today?",["Yes","No, the daily limit is 3.6 g","Yes, with a prescription only","Yes, if paid in cash"],1,"The federal daily limit is 3.6 g."],
+   ["Could the customer buy even 1 box (2.4 g) today?",["Yes, 7.2 + 2.4 = 9.6 g is under the limit","No, 7.2 + 2.4 = 9.6 g is over the 9 g 30-day limit","Yes, the 30-day limit is 15 g","No, only one box per year"],1,"The retail 30-day limit is 9 g. 9.6 g is over it."],
+   ["What must be collected for any sale?",["Nothing","Photo ID and a logbook entry with signature","A doctor's note","A phone number only"],1,"Sales require photo ID and a logbook entry."],
+   ["How long is the logbook kept?",["6 months","1 year","2 years","6 years"],2,"Pseudoephedrine logbooks are kept at least 2 years."]
+  ]},
+ {id:"clean",desc:"Garbing order, hood technique and hazardous drugs.",station:"Clean room",title:"Sterile compounding shift",
+  rx:["Today's batch: IV antibiotics, then one methotrexate infusion.","You are entering the ante-room."],
+  steps:[
+   ["What goes on first?",["Sterile gloves","Gown","Shoe covers","Face mask"],2,"Dirtiest to cleanest: shoe covers, head and hair covers, mask, hand washing, gown, sterile gloves."],
+   ["What do you clean the horizontal laminar airflow hood with?",["Bleach","Sterile 70% isopropyl alcohol","Tap water","Glass cleaner"],1,"Sterile 70% IPA, from back to front and top to bottom."],
+   ["Where should you work inside a horizontal hood?",["Right at the front edge","At least 6 inches inside the hood","Outside the hood","On top of the hood"],1,"Working at least 6 inches inside keeps the work in clean, unobstructed airflow."],
+   ["The methotrexate infusion is a hazardous drug. Where is it compounded?",["The same horizontal hood","A containment hood such as a biological safety cabinet, under USP <800>","The counting counter","Any clean table"],1,"Hazardous drugs need containment engineering controls that protect the worker."]
+  ]}
+];
+let cs=null,cStep=0,cScore=0;
+$("simCards").innerHTML=CASES.map(c=>`<button class="gcard" data-c="${c.id}"><span class="tag">${c.station} · ${c.steps.length} steps</span><h3>${c.title}</h3><p>${c.desc}</p></button>`).join("");
+$("simCards").onclick=e=>{const b=e.target.closest("[data-c]");if(b)startCase(b.dataset.c)};
+$("sBack").onclick=()=>show("simMenu");
+function startCase(id){cs=CASES.find(c=>c.id===id);cStep=0;cScore=0;$("sStation").textContent=cs.station;$("sTitle").textContent=cs.title;show("simArea");renderStep()}
+function renderStep(){
+  const [p,opts]=cs.steps[cStep],order=shuffle(opts.map((_,n)=>n));
+  $("sBody").innerHTML=`<div style="display:flex;flex-direction:column;gap:16px">
+   <article class="rx"><div class="rx-head"><span class="dom">Case file</span><span>Step ${cStep+1} of ${cs.steps.length}</span></div>
+   <div class="rx-body" style="font-family:var(--mono);font-size:14px;gap:4px">${cs.rx.map(l=>`<div>${l}</div>`).join("")}</div></article>
+   <p class="q">${p}</p>
+   <div class="opts" id="sOpts">${order.map((o,n)=>`<button class="opt" data-o="${o}"><span class="k">${n+1}</span><span>${opts[o]}</span></button>`).join("")}</div>
+   <div id="sWhy"></div>
+   <div class="row"><span class="note">${cScore} of ${cStep} correct so far</span><button class="btn" id="sNext" disabled>${cStep===cs.steps.length-1?"Finish case":"Next step"}</button></div></div>`;
+  $("sOpts").onclick=e=>{
+    const b=e.target.closest(".opt");if(!b||b.disabled)return;
+    const [,o2,a,ex]=cs.steps[cStep],pick=+b.dataset.o,ok=pick===a;if(ok)cScore++;
+    [...$("sOpts").children].forEach(x=>{const v=+x.dataset.o;x.disabled=true;if(v===a)x.classList.add("right");else if(v===pick)x.classList.add("wrong")});
+    $("sWhy").innerHTML=`<p class="why ${ok?"":"miss"}"><strong>${ok?"Good call.":"Better choice: "+o2[a]}</strong>${ex}</p>`;
+    $("sNext").disabled=false;$("sNext").focus();
+  };
+  $("sNext").onclick=()=>{if(cStep<cs.steps.length-1){cStep++;renderStep()}else caseDone()};
+}
+function caseDone(){
+  const n=cs.steps.length,next=CASES[(CASES.indexOf(cs)+1)%CASES.length];
+  $("sBody").innerHTML=`<div style="display:flex;flex-direction:column;gap:14px"><div class="score">${cScore}/${n}</div>
+   <p class="note">${cScore===n?"Every step handled correctly.":"Replay the case to lock in the steps you missed."}</p>
+   <div class="chips"><button class="btn ghost" id="sRe">Replay case</button><button class="btn" id="sNx">Next case: ${next.title}</button></div></div>`;
+  $("sRe").onclick=()=>startCase(cs.id);$("sNx").onclick=()=>startCase(next.id);
+}
+
+/* ---------- downloads: printable worksheet and results ---------- */
+let downloads=null;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const PRINT_CSS=`body{font-family:Georgia,'Times New Roman',serif;color:#111;max-width:760px;margin:32px auto;padding:0 20px;line-height:1.45}h1{font-family:Arial,sans-serif;margin:0 0 4px}.sub{font-family:Arial,sans-serif;color:#555;font-size:13px;margin-bottom:18px}.name{font-family:Arial,sans-serif;font-size:14px;margin:12px 0 24px}ol{padding-left:22px}li{margin-bottom:16px;break-inside:avoid}.tag{font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#0E7472}.o{margin:3px 0 0 4px}.key{break-before:page}.key li{margin-bottom:8px}.ex{color:#444;font-size:14px}@media print{body{margin:0 auto}}`;
+function today(){return new Date().toISOString().slice(0,10)}
+async function saveFile(name,html,btn){
+  if(!downloads)return;
+  const old=btn.textContent;
+  try{await downloads.save({filename:name,data:html});btn.textContent="Saved";}
+  catch(e){btn.textContent=e&&e.code==="declined"?"Download canceled":"Download not available here";}
+  setTimeout(()=>btn.textContent=old,2500);
+}
+function worksheetHTML(list){
+  const items=list.map(({q})=>{const order=shuffle(q[2].map((_,n)=>n));return{q,order,key:order.indexOf(q[3])}});
+  const L="ABCD";
+  return`<!doctype html><html><head><meta charset="utf-8"><title>PTCB Practice Worksheet</title><style>${PRINT_CSS}</style></head><body>
+<h1>PTCB Practice Worksheet</h1><div class="sub">${items.length} questions · Topics: ${[...new Set(items.map(x=>DOMAINS[x.q[0]].name))].join(", ")} · ${today()}</div>
+<div class="name">Name: ______________________________ &nbsp; Score: ______ / ${items.length}</div>
+<ol>${items.map(x=>`<li><div class="tag">${esc(DOMAINS[x.q[0]].name)}</div>${esc(x.q[1])}${x.order.map((o,n)=>`<div class="o">${L[n]}. ${esc(x.q[2][o])}</div>`).join("")}</li>`).join("")}</ol>
+<section class="key"><h1>Answer Key</h1><ol>${items.map(x=>`<li><b>${L[x.key]}. ${esc(x.q[2][x.q[3]])}</b><div class="ex">${esc(x.q[4])}</div></li>`).join("")}</ol></section>
+<p class="sub">Practice questions aligned to PTCB topic areas. Not official PTCB items.</p></body></html>`;
+}
+function resultsHTML(){
+  const total=session.length,right=session.filter(s=>s.pick===s.q[3]).length,missed=session.filter(s=>s.pick!==s.q[3]);
+  return`<!doctype html><html><head><meta charset="utf-8"><title>PTCB Practice Results</title><style>${PRINT_CSS}</style></head><body>
+<h1>PTCB Practice Results</h1><div class="sub">${esc(sessionLabel)} · ${today()}</div>
+<p style="font-family:Arial,sans-serif;font-size:28px;margin:8px 0"><b>${Math.round(right/total*100)}%</b> (${right} of ${total} correct)</p>
+<h2 style="font-family:Arial,sans-serif">Questions to review</h2>
+${missed.length?`<ol>${missed.map(s=>`<li>${esc(s.q[1])}<div class="o"><b>Answer: ${esc(s.q[2][s.q[3]])}</b></div>${s.pick!=null?`<div class="o">Chosen: ${esc(s.q[2][s.pick])}</div>`:`<div class="o">Not answered</div>`}<div class="ex">${esc(s.q[4])}</div></li>`).join("")}</ol>`:"<p>Nothing missed.</p>"}
+</body></html>`;
+}
+$("wsBtn").onclick=()=>{const list=customList().map(x=>({q:x.q}));if(list.length)saveFile(`PTCB-worksheet-${today()}.html`,worksheetHTML(list),$("wsBtn"))};
+$("rDl").onclick=()=>saveFile(`PTCB-results-${today()}.html`,resultsHTML(),$("rDl"));
+(async()=>{try{downloads=await window.claude?.use?.("downloads")}catch(e){downloads=null}
+  if(downloads){document.querySelectorAll(".dl").forEach(b=>b.hidden=false);$("wsNote").hidden=false}})();
+
+/* ---------- study guide ---------- */
+const T=(head,rows)=>`<div class="tbl"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+const TERMS=pairs=>`<dl class="terms">${pairs.map(([t,d])=>`<dt>${t}</dt><dd>${d}</dd>`).join("")}</dl>`;
+const BOX=(label,body,cls="")=>`<div class="callout ${cls}"><span class="label">${label}</span>${body}</div>`;
+const GUIDE=[
+{id:"dscsa",tag:"Federal Requirements · New in 2026",title:"DSCSA: Tracing Drugs Through the Supply Chain",doms:["dscsa"],
+ sum:"The Drug Supply Chain Security Act is the federal law that tracks prescription drugs, package by package, from the manufacturer to the pharmacy so counterfeit, stolen or contaminated drugs never reach a patient.",
+ body:`
+<h3>What it is</h3>
+<p>DSCSA was signed into law in November 2013 as Title II of the Drug Quality and Security Act. It is enforced by the FDA. Think of it as a chain of custody for medications. Every time a prescription drug changes hands, the seller and buyer must exchange records that prove where it came from.</p>
+<h3>Why it exists</h3>
+<p>Before DSCSA, there was no national system to trace a bottle of medication. Counterfeit cancer drugs and stolen products that were stored badly have reached patients through gaps in the supply chain. DSCSA closes those gaps.</p>
+${BOX("Remember it this way","<p>Every bottle has a passport (the product identifier), every sale has a receipt (transaction information), and every seller signs a promise (transaction statement).</p>")}
+<h3>Who must follow it</h3>
+<p>All <b>trading partners</b>: manufacturers, repackagers, wholesale distributors, third-party logistics providers, and <b>dispensers</b>, which includes pharmacies. A pharmacy may only buy from and sell to <b>authorized</b> trading partners, meaning businesses that hold the right license or registration.</p>
+<p>DSCSA covers prescription drugs for humans in finished dosage form. Handing a prescription to a patient is not a DSCSA transaction.</p>
+<h3>Key terms</h3>
+${TERMS([
+ ["Product identifier","The package's passport: NDC, a unique serial number, lot number and expiration date. It is printed in a 2D data matrix barcode plus human-readable text."],
+ ["Transaction information (TI)","The details of each sale: product name, strength, dosage form, NDC, container size, number of containers, lot number, date of the transaction and shipment, and the seller's and buyer's business names and addresses. Patient information is never part of it."],
+ ["Transaction history (TH)","An older record of every prior sale back to the manufacturer. The enhanced 2023 rules no longer require it, but exam questions may still name the 3 Ts."],
+ ["Transaction statement (TS)","The seller's signed attestation that it is authorized, received proper documents, and did not knowingly ship suspect or illegitimate product."],
+ ["Suspect product","A product there is reason to believe may be counterfeit, diverted, stolen, intentionally adulterated, part of a fraudulent sale, or unfit to distribute."],
+ ["Illegitimate product","A suspect product with credible evidence that it is one of those things."],
+ ["Quarantine","Physically separating a product so it cannot be sold or dispensed while it is investigated."]
+])}
+<h3>What to do with a suspect product</h3>
+<ol class="steps">
+ <li><span><b>Quarantine it.</b> Set it apart, labeled, so no one can dispense it.</span></li>
+ <li><span><b>Tell the pharmacist</b> and investigate with the trading partner. This includes checking the product identifier.</span></li>
+ <li><span><b>If it is illegitimate,</b> notify the FDA using <b>Form FDA 3911</b> and notify trading partners <b>within 24 hours</b>.</span></li>
+ <li><span><b>Dispose of it properly</b> or return it as directed, and keep a sample if asked.</span></li>
+ <li><span><b>Keep the records for 6 years.</b></span></li>
+</ol>
+<h3>Warning signs at receiving</h3>
+<ul>
+ <li>Broken or tampered seals, damaged packaging, or labels that look different from your normal stock</li>
+ <li>A seller you do not know, or a price far below market</li>
+ <li>Missing transaction information or transaction statement</li>
+ <li>Foreign-language packaging or an unexpected source</li>
+</ul>
+<h3>Timeline</h3>
+${T(["Year","What happened"],[
+ ["2013","DSCSA signed into law"],
+ ["2015","Lot-level tracing begins: trading partners exchange TI, TH and TS"],
+ ["2017 to 2019","Manufacturers and repackagers add product identifiers (serialization)"],
+ ["Nov 2023","Enhanced electronic, package-level tracing requirements begin, followed by FDA phase-in periods"],
+ ["Nov 2025","Larger pharmacies expected to comply"],
+ ["Nov 2027","Small pharmacies (25 or fewer full-time pharmacists and technicians at the owning company) have an FDA exemption until November 27, 2027"]
+])}
+${BOX("Numbers to know","<p><b>6 years</b> to keep records · <b>24 hours</b> to notify FDA · <b>Form FDA 3911</b> · <b>4 parts</b> of the product identifier</p>","warn")}`},
+
+{id:"cs",tag:"Federal Requirements",title:"Controlled Substances and DEA Schedules",doms:["law"],
+ sum:"The Controlled Substances Act of 1970 sorts drugs with abuse potential into five schedules. The DEA enforces it, and the schedule decides how a drug is prescribed, refilled, stored and recorded.",
+ body:`
+<h3>The five schedules</h3>
+<p>The lower the number, the higher the abuse potential and the stricter the rules. Schedule I drugs have no accepted medical use in the US.</p>
+${T(["Schedule","Abuse potential","Examples"],[
+ ["C-I","Highest. No accepted medical use","Heroin, LSD, MDMA, psilocybin"],
+ ["C-II","High, with severe dependence","Oxycodone, morphine, fentanyl, hydromorphone, methadone, hydrocodone combinations, methylphenidate, amphetamine salts"],
+ ["C-III","Moderate","Buprenorphine, acetaminophen/codeine (Tylenol #3), ketamine, testosterone, anabolic steroids"],
+ ["C-IV","Low","Alprazolam, lorazepam, diazepam, clonazepam, zolpidem, tramadol, carisoprodol, phenobarbital"],
+ ["C-V","Lowest","Pregabalin, lacosamide, diphenoxylate/atropine (Lomotil), low-dose codeine cough syrups"]
+])}
+${BOX("Exam traps","<p>Hydrocodone combinations moved from C-III to <b>C-II</b> in 2014. Tramadol became <b>C-IV</b> in 2014. Pregabalin is <b>C-V</b>.</p>","warn")}
+<h3>Prescription rules</h3>
+${T(["Rule","C-II","C-III to C-V"],[
+ ["Refills","None. A new prescription is needed each time","Up to 5 refills within 6 months of the date written"],
+ ["Transfers","No refills to transfer. Since 2023, DEA allows a one-time transfer of an unfilled electronic C-II prescription for the first fill (states may be stricter)","One time between pharmacies; unlimited up to the refills allowed if they share a real-time database"],
+ ["How it can be sent","Written (signed) or electronic. Oral only in an emergency","Written, electronic, oral or fax"],
+ ["Emergency oral order","Prescriber must send the written or electronic prescription within 7 days","Not needed"],
+ ["Partial fills","Remainder within 72 hours if the pharmacy is short; up to 30 days if the patient or prescriber asks; up to 60 days for long-term care or terminally ill patients","Allowed, as long as the total does not exceed what was prescribed, within 6 months"]
+])}
+<p>Every controlled substance prescription must include the prescriber's <b>DEA number</b>, the patient's full name and address, and the prescriber's signature for written prescriptions.</p>
+<h3>DEA forms</h3>
+${T(["Form","Used for"],[
+ ["DEA 222","Ordering C-I and C-II drugs (paper). CSOS is the electronic version"],
+ ["DEA 224","Registering a retail pharmacy. Renewed every 3 years"],
+ ["DEA 106","Reporting theft or significant loss. DEA must be told in writing within 1 business day of discovery"],
+ ["DEA 41","Recording destruction of controlled substances"]
+])}
+<h3>Inventory and records</h3>
+<ul>
+ <li>A full controlled substance inventory is taken every <b>2 years</b> (biennial).</li>
+ <li><b>C-II</b> drugs are counted <b>exactly</b>. Opened C-III to C-V containers may be estimated unless the container holds more than 1,000 units.</li>
+ <li>Records are kept at least <b>2 years</b> under federal law. C-II records are kept separate from other records.</li>
+ <li>Controlled substances may be stored in a locked cabinet or dispersed among regular stock in a way that deters theft.</li>
+</ul>
+<h3>Labels</h3>
+<p>C-II to C-IV labels must carry the federal transfer warning: <i>"Caution: Federal law prohibits the transfer of this drug to any person other than the patient for whom it was prescribed."</i></p>
+<h3>Checking a DEA number</h3>
+${BOX("Example: Dr. Sarah Brown, BB1234563",`<ol class="steps"><li><span>Second letter matches the last name: <b>B</b> for Brown.</span></li><li><span>Add digits 1, 3 and 5: 1 + 3 + 5 = 9.</span></li><li><span>Add digits 2, 4 and 6, then double: (2 + 4 + 6) x 2 = 24.</span></li><li><span>Add the two results: 9 + 24 = 33. The last digit, <b>3</b>, must match the 7th digit. It does, so it passes.</span></li></ol>`)}`},
+
+{id:"restricted",tag:"Federal Requirements",title:"REMS and Restricted Drug Programs",doms:["law"],
+ sum:"Some drugs are safe only under special conditions. REMS programs and the pseudoephedrine law add extra steps before these drugs can be dispensed or sold.",
+ body:`
+<h3>What a REMS is</h3>
+<p>A <b>Risk Evaluation and Mitigation Strategy</b> is a safety program the FDA requires for drugs with serious risks. It can include:</p>
+<ul>
+ <li>A <b>Medication Guide</b> given to the patient with every fill</li>
+ <li>A communication plan for prescribers and pharmacists</li>
+ <li><b>Elements to assure safe use (ETASU)</b>, such as prescriber certification, pharmacy enrollment, lab tests before dispensing, or patient registries</li>
+</ul>
+<h3>Examples to know</h3>
+${T(["Program","Drug","Why"],[
+ ["iPLEDGE","Isotretinoin","Causes severe birth defects. Patients, prescribers and pharmacies register; pregnancy testing and two forms of birth control may be required"],
+ ["TIRF REMS","Transmucosal fentanyl products","Risk of overdose in patients who are not opioid tolerant"],
+ ["Opioid Analgesic REMS","Opioid pain medications","Overdose, misuse and addiction risk. Focuses on prescriber education"],
+ ["Thalidomide and lenalidomide REMS","Thalidomide, lenalidomide","Birth defects; restricted dispensing"]
+])}
+<h3>Pseudoephedrine (Combat Methamphetamine Epidemic Act, 2005)</h3>
+<p>Pseudoephedrine can be used to make methamphetamine, so sales are restricted even though it is sold without a prescription.</p>
+${T(["Rule","Limit"],[
+ ["Daily limit","3.6 g per day"],
+ ["30-day limit, retail","9 g"],
+ ["30-day limit, mail order","7.5 g"],
+ ["Where it is kept","Behind the counter or in a locked case"],
+ ["At the sale","Photo ID and a logbook entry with the buyer's signature"],
+ ["Logbook kept","At least 2 years"]
+])}
+${BOX("Practice the math","<p>One box has 20 tablets of 120 mg. 20 x 120 mg = 2,400 mg = 2.4 g. Two boxes would be 4.8 g, which is over the 3.6 g daily limit.</p>")}`},
+
+{id:"recalls",tag:"Federal Requirements",title:"Recalls and Waste Disposal",doms:["law"],
+ sum:"When a product is unsafe, the FDA classifies the recall by how dangerous it is. Pharmacies also have federal rules for getting rid of expired, hazardous and controlled drugs.",
+ body:`
+<h3>Recall classes</h3>
+${T(["Class","Risk","Example"],[
+ ["Class I","Most serious. Use could cause serious harm or death","Contaminated injection, wrong drug in the bottle"],
+ ["Class II","Could cause temporary or reversible health problems","Tablets with a lower strength than labeled"],
+ ["Class III","Unlikely to cause harm","Minor labeling error"],
+ ["Market withdrawal","Minor problem that is not a legal violation","Product pulled for a quality reason"]
+])}
+${BOX("Memory tip","<p>Class <b>I</b> is the most serious, the same way schedule <b>I</b> is the strictest. The number goes up as the danger goes down.</p>")}
+<h3>What a technician does in a recall</h3>
+<ol class="steps">
+ <li><span>Read the notice and note the product, NDC and <b>lot numbers</b>.</span></li>
+ <li><span>Check shelves, will-call, the refrigerator and returns for matching lots.</span></li>
+ <li><span>Pull and quarantine affected stock.</span></li>
+ <li><span>Return it as instructed and document what was found.</span></li>
+ <li><span>If the recall reaches the patient level, the pharmacist contacts affected patients.</span></li>
+</ol>
+<h3>Disposal</h3>
+${T(["Type","How it is handled"],[
+ ["Expired controlled substances","Sent to a DEA-registered <b>reverse distributor</b>. Destruction is recorded on DEA Form 41"],
+ ["Patients' unused drugs","DEA-authorized collection sites, kiosks and National Take Back Days"],
+ ["Hazardous waste pharmaceuticals","Follow EPA rules. Subpart P <b>bans sewering</b> (flushing or pouring down a drain)"],
+ ["Hazardous drugs such as chemotherapy","Special labeled containers under USP &lt;800&gt;"],
+ ["Needles and syringes","Sharps containers"]
+])}`},
+
+{id:"laws",tag:"Federal Requirements",title:"Federal Laws Timeline",doms:["law"],
+ sum:"Exam questions often ask which law did what. Each law usually followed a real problem, so learning the story makes them easier to remember.",
+ body:`
+${T(["Year","Law","What it did"],[
+ ["1906","Pure Food and Drug Act","Banned mislabeled and adulterated drugs"],
+ ["1938","Food, Drug, and Cosmetic Act (FDCA)","Required proof of <b>safety</b> before sale. Created after a sulfanilamide elixir killed over 100 people"],
+ ["1951","Durham-Humphrey Amendment","Split drugs into prescription (legend) and OTC. Allowed oral prescriptions and refills"],
+ ["1962","Kefauver-Harris Amendment","Required proof of <b>effectiveness</b>. Followed the thalidomide tragedy"],
+ ["1970","Controlled Substances Act","Created schedules C-I to C-V. Enforced by the DEA"],
+ ["1970","Poison Prevention Packaging Act","Required child-resistant containers. Patients or prescribers may request easy-open caps"],
+ ["1983","Orphan Drug Act","Encouraged drugs for rare diseases"],
+ ["1984","Hatch-Waxman Act","Made it easier to approve generic drugs"],
+ ["1990","OBRA '90","Required an offer to counsel and drug review for Medicaid patients"],
+ ["1994","DSHEA","Defined dietary supplements; they do not need FDA approval before sale"],
+ ["1996","HIPAA","Protects patient health information (PHI)"],
+ ["2005","Combat Methamphetamine Epidemic Act","Limits pseudoephedrine sales"],
+ ["2013","Drug Quality and Security Act","Title I covers compounding; Title II is DSCSA"]
+])}
+${BOX("Safe vs effective","<p><b>1938</b> = safe. <b>1962</b> = safe <i>and</i> effective.</p>","warn")}`},
+
+{id:"stems",tag:"Medications · Memory tricks",title:"Drug Stems, Rhymes and Memory Tricks",doms:["stems"],
+ sum:"Generic drug names are built from stems. The ending often tells you the drug class, so -pril is probably an ACE inhibitor and -olol is probably a beta blocker. Learn the stem once and you can place drugs you have never seen.",
+ body:`
+<h3>How stems work</h3>
+<p>The USAN Council gives generic names a shared stem for drugs in the same class. Brand names do not follow this rule, which is why learning brand and generic pairs still matters.</p>
+${BOX("Try it","<p>You see <b>quinapril</b> on a prescription and have never heard of it. It ends in <b>-pril</b>, so it is probably an ACE inhibitor, and it may cause a dry cough and high potassium.</p>")}
+<h3>Stem cheat sheet</h3>
+<div class="stemlist">${STEMS.map(s=>`<div class="stem"><div class="sh"><b>${s[0]}</b><span>${cap(s[1])}</span></div><div class="sx">${s[2].slice(0,4).join(", ")}</div>${RHYME[s[0]]?`<div class="sr">${RHYME[s[0]]}</div>`:""}</div>`).join("")}</div>
+<h3>Exceptions that show up on tests</h3>
+${BOX("Look-alike stems","<ul><li><b>Nystatin</b> is an antifungal, not a statin.</li><li><b>Aripiprazole</b> is an antipsychotic, not a PPI.</li><li><b>Metronidazole</b> is an antibiotic, not an azole antifungal.</li><li><b>Clindamycin</b> and <b>vancomycin</b> end in -mycin but are not macrolides.</li><li><b>Tramadol</b> ends in -dol, not -lol. It is an opioid pain reliever, not a beta blocker.</li><li><b>Duloxetine</b> is an SNRI, while fluoxetine and paroxetine are SSRIs.</li></ul>","warn")}
+<h3>Rhymes for the rest of the exam</h3>
+${T(["Topic","Rhyme"],[
+ ["C-II refills","<i>Two is too risky to refill.</i>"],
+ ["C-III to C-V refills","<i>Three to five? Five in six.</i> (5 refills in 6 months)"],
+ ["Recall classes","<i>Class one, serious harm done. Class three, likely harm-free.</i>"],
+ ["Writing doses","<i>Always lead, never trail, or the dose could fail.</i>"],
+ ["Reversal agents","<i>Warfarin needs K; heparin, protamine saves the day.</i>"],
+ ["DSCSA","<i>Keep it six, report in twenty-four, and suspect drugs stay off the floor.</i>"],
+ ["Nitroglycerin","<i>Nitro in glass, cap it fast.</i>"],
+ ["Refrigerator","<i>Two to eight, keep it straight.</i> (degrees C)"],
+ ["Garbing","<i>Shoes to gloves, dirty to clean, that's the garbing routine.</i>"],
+ ["Pseudoephedrine","<i>3.6 a day, 9 a month, no more to pay.</i>"],
+ ["DEA 222","<i>Two-two-two orders the C-IIs for you.</i>"]
+])}
+<h3>More memory tricks</h3>
+${T(["Topic","Trick"],[
+ ["ACE inhibitor side effects","<b>ACE</b> = Annoying cough, Climbing potassium, Edema of the face and lips (angioedema)"],
+ ["Reversal agents","<b>W</b>arfarin goes with vitamin <b>K</b>, both near the end of the alphabet. <b>H</b>eparin goes with <b>P</b>rotamine. Naloxone undoes narcotics; flumazenil undoes benzos"],
+ ["Sig frequency","<b>b</b>id = <b>b</b>i = 2 · <b>t</b>id = <b>t</b>ri = 3 · <b>q</b>id = <b>q</b>uad = 4"],
+ ["Eyes and ears","O = oculus (eye), A = auris (ear). D = dexter (right), S = sinister (left), U = both"],
+ ["C-II refills","C-II: zero refills, so you need a new prescription every time"],
+ ["C-III to C-V refills","<b>5 in 6</b>: 5 refills within 6 months"],
+ ["DEA 222","<b>2-2-2</b> orders the <b>II</b>s"],
+ ["DEA 106","One-oh-six: the drugs went missing (theft or loss)"],
+ ["DEA 41","41 = 'for gone': destroyed"],
+ ["DEA 224","2-2-4 registers the store"],
+ ["Recall classes","Class <b>I</b> is the worst, just like schedule <b>I</b>. Danger goes down as the number goes up"],
+ ["Writing doses","<b>Always lead, never trail</b>: 0.5 mg, never .5 mg; 5 mg, never 5.0 mg"],
+ ["Pseudoephedrine","<b>3.6</b> a day, <b>9</b> a month (7.5 by mail)"],
+ ["DSCSA","<b>Keep it 6, report in 24</b>: records 6 years, FDA notice within 24 hours"],
+ ["Refrigerator","<b>2 to 8, refrigerate</b> (degrees C)"],
+ ["Garbing","Dirtiest to cleanest, feet to hands: shoes, head, face, wash, gown, gloves"],
+ ["Nitroglycerin","<b>Glass, cap, no cotton</b>, never a pill box"],
+ ["Teaspoon vs tablespoon","Tablespoon is the big one: 3 teaspoons = 1 tablespoon = 15 mL"],
+ ["Pounds to kilograms","Kilograms are the smaller number, so divide by 2.2"],
+ ["Safe vs effective","1938 = safe. 1962 = safe <i>and</i> effective"]
+])}`},
+{id:"interact",tag:"Medications",title:"Drug Interactions",doms:["interact"],
+ sum:"An interaction happens when a drug, food or condition changes how another drug works. Technicians spot the alert; the pharmacist decides what to do.",
+ body:`
+<h3>Types of interactions</h3>
+${TERMS([
+ ["Drug-drug","Two medications affect each other, such as warfarin and aspirin."],
+ ["Drug-food","A food changes how a drug works, such as grapefruit with simvastatin."],
+ ["Drug-disease","A drug worsens a condition, such as decongestants in high blood pressure."],
+ ["Therapeutic duplication","Two drugs from the same class for the same purpose, such as omeprazole and pantoprazole."]
+])}
+<h3>High-yield interactions</h3>
+${T(["Combination","What can happen"],[
+ ["Warfarin + aspirin or NSAIDs","Bleeding"],
+ ["Warfarin + vitamin K foods (kale, spinach)","Warfarin works less well. Patients keep vitamin K intake consistent"],
+ ["Nitroglycerin + sildenafil or tadalafil","Dangerous drop in blood pressure"],
+ ["SSRI + tramadol, triptans or linezolid","Serotonin syndrome"],
+ ["MAO inhibitor + aged cheese, cured meats, wine","Hypertensive crisis from tyramine"],
+ ["Metronidazole + alcohol","Nausea, vomiting and flushing"],
+ ["ACE inhibitor + potassium or spironolactone","High potassium"],
+ ["Lithium + NSAIDs or thiazides","Lithium toxicity"],
+ ["Digoxin + loop diuretics","Low potassium, which raises the risk of digoxin toxicity"],
+ ["Simvastatin + clarithromycin or grapefruit","Muscle damage"],
+ ["Opioids + benzodiazepines","Severe sedation and slowed breathing (boxed warning)"],
+ ["Tetracyclines or fluoroquinolones + calcium, iron, antacids","The antibiotic is not absorbed. Separate the doses"],
+ ["Levothyroxine + calcium or iron","Less levothyroxine absorbed. Separate by about 4 hours"]
+])}
+${BOX("Technician's role","<p>When a DUR (drug utilization review) alert appears, never override it. Bring it to the pharmacist.</p>")}`},
+
+{id:"storage",tag:"Medications",title:"Storage and Handling",doms:["storage"],
+ sum:"Heat, light, moisture and air can make a drug weaker or unsafe. Some drugs need special containers or temperatures every time.",
+ body:`
+<h3>USP storage temperatures</h3>
+${T(["Condition","Range"],[
+ ["Freezer","-25 to -10 degrees C (-13 to 14 degrees F)"],
+ ["Refrigerator","2 to 8 degrees C (36 to 46 degrees F)"],
+ ["Cool","8 to 15 degrees C (46 to 59 degrees F)"],
+ ["Controlled room temperature","20 to 25 degrees C (68 to 77 degrees F)"]
+])}
+<h3>Must stay in the original container</h3>
+${T(["Drug","Why"],[
+ ["Nitroglycerin sublingual tablets","Volatile. Loses strength with air, heat, moisture and light. Keep in the original amber glass bottle, cap tightly, no cotton, never in a pill organizer"],
+ ["Dabigatran (Pradaxa)","Moisture sensitive. Use within 4 months of opening"],
+ ["Products with a desiccant","The packet protects against moisture"]
+])}
+<h3>Refrigerated and frozen items</h3>
+<ul>
+ <li><b>Insulin</b>: refrigerate unopened. Most opened vials last 28 days at room temperature. Never freeze.</li>
+ <li><b>Latanoprost eye drops</b>: refrigerate unopened. Up to 6 weeks at room temperature once opened.</li>
+ <li><b>Most vaccines</b>: refrigerated. <b>Varicella (Varivax)</b> is frozen.</li>
+ <li><b>Reconstituted amoxicillin</b>: discard after 14 days. <b>Augmentin</b> suspension: refrigerate, discard after 10 days.</li>
+</ul>
+<h3>Room temperature, protected from light</h3>
+<p>Epinephrine auto-injectors stay at room temperature, away from heat and light. Amber vials filter out light for light-sensitive drugs.</p>
+${BOX("Receiving tip","<p>Cold-chain items are always put away first.</p>","warn")}`},
+
+{id:"safety",tag:"Patient Safety",title:"Preventing Medication Errors",doms:["safe"],
+ sum:"Patient safety questions test how errors happen and the habits and systems that stop them.",
+ body:`
+<h3>Error-prone writing</h3>
+${T(["Do not use","Problem","Write instead"],[
+ ["U or IU","Read as 0 or 4","units"],
+ ["QD, QOD","Mistaken for each other; QD can also be read as QID","daily, every other day"],
+ ["Trailing zero (5.0 mg)","Read as 50 mg","5 mg"],
+ ["No leading zero (.5 mg)","Read as 5 mg","0.5 mg"],
+ ["MS, MSO4, MgSO4","Morphine or magnesium?","morphine sulfate, magnesium sulfate"]
+])}
+<h3>Tools that prevent errors</h3>
+${TERMS([
+ ["Tall Man lettering","Capital letters show how look-alike names differ: hydrOXYzine vs hydrALAZINE."],
+ ["Barcode scanning","Matches the NDC on the bottle to the prescription."],
+ ["Automated dispensing cabinets","Limit access and track who removed each drug."],
+ ["High-alert drugs","Extra checks for insulin, anticoagulants, opioids, chemotherapy and concentrated potassium."],
+ ["Root cause analysis","Looks for the system problems behind an error instead of blaming one person."]
+])}
+<h3>Reporting programs</h3>
+${T(["Program","Reports"],[
+ ["MedWatch (FDA)","Adverse events and product problems with drugs and devices"],
+ ["VAERS (CDC and FDA)","Adverse events after vaccines only"],
+ ["ISMP MERP","Medication errors and near misses"]
+])}
+<h3>Sterile compounding</h3>
+<ul>
+ <li><b>USP &lt;797&gt;</b> sterile compounding · <b>USP &lt;800&gt;</b> hazardous drugs · <b>USP &lt;795&gt;</b> nonsterile compounding</li>
+ <li>Garb from dirtiest to cleanest: shoe covers, head and facial hair covers, face mask, hand washing, gown, sterile gloves.</li>
+ <li>Clean the hood with sterile 70% isopropyl alcohol, back to front and top to bottom. Work at least 6 inches inside it.</li>
+</ul>`},
+
+{id:"order",tag:"Order Entry and Processing",title:"Sig Codes, NDCs and Claims",doms:["order"],
+ sum:"Order entry turns a prescription into a correct label and a paid claim. Most questions test abbreviations, codes and required information.",
+ body:`
+<h3>Common sig codes</h3>
+${T(["Code","Meaning","Code","Meaning"],[
+ ["po","by mouth","SL","under the tongue"],
+ ["daily","once a day","bid","twice a day"],
+ ["tid","three times a day","qid","four times a day"],
+ ["q4h","every 4 hours","prn","as needed"],
+ ["ac","before meals","pc","after meals"],
+ ["hs","at bedtime","stat","immediately"],
+ ["OD / OS / OU","right / left / both eyes","AD / AS / AU","right / left / both ears"],
+ ["gtt","drop","NPO","nothing by mouth"]
+])}
+<h3>The NDC</h3>
+<p>The National Drug Code has 10 digits in three parts: <b>labeler</b> (who made or distributes it), <b>product</b> (drug, strength and form), and <b>package</b> (size and type). Billing uses an 11-digit version with a leading zero added.</p>
+<h3>DAW codes</h3>
+${T(["Code","Meaning"],[
+ ["DAW 0","No product selection indicated. Generic substitution allowed"],
+ ["DAW 1","Prescriber requires the brand"],
+ ["DAW 2","Patient requests the brand"]
+])}
+<h3>Claim rejections</h3>
+${TERMS([
+ ["Refill too soon","Too little of the last days' supply has been used."],
+ ["Prior authorization required","The prescriber must justify the drug to the insurer."],
+ ["Not on formulary","The plan does not cover the drug or prefers another one."],
+ ["Quantity limit exceeded","The plan limits how much can be dispensed at one time."]
+])}`},
+
+{id:"calc",tag:"Calculations",title:"Pharmacy Math Formulas",doms:["calc"],
+ sum:"Most exam math comes down to a few formulas. Write the units at every step and the answer follows.",
+ body:`
+<h3>Formulas</h3>
+${T(["Problem","Formula"],[
+ ["Days' supply","Quantity dispensed / amount used per day"],
+ ["Quantity to dispense","Amount per dose x doses per day x days"],
+ ["Weight","kg = lb / 2.2"],
+ ["Weight-based dose","mg/kg x patient weight in kg"],
+ ["Dilution","C1 x V1 = C2 x V2"],
+ ["Percent w/v","grams per 100 mL (5% = 5 g in 100 mL)"],
+ ["IV flow rate","Total volume / total hours = mL/hr"],
+ ["Drip rate","(mL/hr x drop factor) / 60 = drops per minute"],
+ ["Temperature","C = (F - 32) / 1.8 · F = (C x 1.8) + 32"],
+ ["Gross profit","Selling price - cost"]
+])}
+<h3>Conversions</h3>
+${T(["Unit","Equals"],[
+ ["1 tsp","5 mL"],["1 tbsp","15 mL"],["1 fl oz","about 30 mL"],["1 kg","2.2 lb"],["1 g","1,000 mg"],["1 mg","1,000 mcg"],["1 L","1,000 mL"]
+])}
+${BOX("Worked example",`<p>Amoxicillin 250 mg/5 mL. Give 500 mg TID x 10 days.</p><ol class="steps"><li><span>mL per dose: 500 mg needs 10 mL.</span></li><li><span>Per day: 10 mL x 3 = 30 mL.</span></li><li><span>Total: 30 mL x 10 days = <b>300 mL</b>.</span></li></ol>`)}
+${BOX("Weight-based dosing, the way the exam asks it",`<p>A patient weighs 121 lb. The order is 20 mg/kg/day divided every 12 hours. How many mg per dose?</p><ol class="steps"><li><span>Convert: 121 lb / 2.2 = 55 kg.</span></li><li><span>Daily dose: 20 mg x 55 kg = 1,100 mg per day.</span></li><li><span>Every 12 hours = 2 doses: 1,100 / 2 = <b>550 mg per dose</b>.</span></li></ol><p>Watch for "per day" vs "per dose" in the order. It decides whether you divide.</p>`,"warn")}
+<p class="note">Alligation was removed from the 2026 outline, but dosing, days' supply and dilution problems are still tested.</p>`}
+];
+let gIdx=0;
+$("guideCards").innerHTML=GUIDE.map((g,i)=>`<button class="gcard" data-gi="${i}"><span class="tag">${g.tag}</span><h3>${g.title}</h3><p>${g.sum.split(". ")[0]}.</p></button>`).join("");
+$("guideCards").onclick=e=>{const b=e.target.closest("[data-gi]");if(b)openGuide(+b.dataset.gi)};
+function openGuide(i){
+  gIdx=i;const g=GUIDE[i];
+  $("gTag").textContent=g.tag;$("gHead").textContent=g.title;
+  $("gText").innerHTML=`<p class="sum">${g.sum}</p>${g.body}`;
+  const p=GUIDE[(i-1+GUIDE.length)%GUIDE.length],n=GUIDE[(i+1)%GUIDE.length];
+  $("gPrev").textContent="← "+p.title.split(":")[0];$("gNext").textContent=n.title.split(":")[0]+" →";
+  show("learnArea");
+}
+$("gList").onclick=()=>show("learnMenu");
+$("gPrev").onclick=()=>openGuide((gIdx-1+GUIDE.length)%GUIDE.length);
+$("gNext").onclick=()=>openGuide((gIdx+1)%GUIDE.length);
+$("gQuiz").onclick=()=>{
+  const g=GUIDE[gIdx];let list=fromDoms(g.doms);
+  if(g.doms.includes("calc"))list=list.concat(genCalc(12));
+  if(g.doms.includes("stems"))list=list.concat(genStems(15));
+  start(shuffle(list).slice(0,15),{label:"Quiz: "+g.title});
+};
+$("guideDl").onclick=()=>{
+  const html=`<!doctype html><html><head><meta charset="utf-8"><title>PTCB Study Guide</title><style>${PRINT_CSS}
+table{border-collapse:collapse;width:100%;margin:8px 0 14px;font-size:14px}th,td{border:1px solid #bbb;padding:6px 8px;text-align:left;vertical-align:top}th{background:#E6F2F1;font-family:Arial,sans-serif}
+h2{font-family:Arial,sans-serif;border-bottom:2px solid #0E7472;padding-bottom:4px;margin-top:32px;break-after:avoid}h3{font-family:Arial,sans-serif;font-size:16px;margin:18px 0 6px;break-after:avoid}
+.callout{border:1.5px solid #0E7472;padding:10px 14px;margin:12px 0;break-inside:avoid}.label{font-family:Arial,sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#0E7472;font-weight:bold}
+dl{display:grid;grid-template-columns:180px 1fr;gap:6px 14px}dt{font-weight:bold}dd{margin:0}.steps{padding-left:22px}.sum{font-size:17px}.topic{break-before:page}.topic:first-of-type{break-before:auto}</style></head><body>
+<h1>PTCB Study Guide</h1><div class="sub">Aligned to the 2026 PTCE content outline · ${today()}</div>
+${GUIDE.map(g=>`<section class="topic"><h2>${g.title}</h2><div class="label">${g.tag}</div><p class="sum">${g.sum}</p>${g.body}</section>`).join("")}
+<p class="sub">Study material aligned to PTCB topic areas. Not official PTCB content. Confirm state-specific rules with your state board of pharmacy.</p></body></html>`;
+  saveFile(`PTCB-study-guide-${today()}.html`,html,$("guideDl"));
+};
+
+/* ---------- tabs / routing ---------- */
+function route(){
+  stopTimer();
+  const h=location.hash,v=h==="#games"?"games":h==="#sim"?"sim":h==="#learn"?"learn":"practice";
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.v===v));
+  if(v==="games")show("gameMenu");else if(v==="sim")show("simMenu");else if(v==="learn")show("learnMenu");else{show("setup");renderSetup()}
+}
+document.querySelector(".tabs").onclick=e=>{const t=e.target.closest(".tab");if(!t)return;const h="#"+t.dataset.v;if(location.hash===h)route();else location.hash=h};
+window.addEventListener("hashchange",route);
+route();
+</script>
+
+</body></html>
